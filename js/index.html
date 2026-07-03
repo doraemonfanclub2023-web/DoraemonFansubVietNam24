@@ -46,28 +46,30 @@
                 <i class="fa-solid fa-bell"></i>
                 <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
+            
             <!-- Khu vực hiển thị Đăng nhập / Avatar tùy theo trạng thái -->
-<div id="user-header-zone" class="flex items-center space-x-3">
-    <!-- Mặc định khi chưa đăng nhập sẽ hiện nút này -->
-    <button id="btn-open-auth-modal" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 px-4 rounded-lg transition">
-        Đăng nhập
-    </button>
-    
-    <!-- Khi đã đăng nhập thành công, JS sẽ gỡ lớp 'hidden' để hiện cụm này -->
-    <div id="user-logged-in" class="hidden flex items-center space-x-3">
-        <img id="user-avatar" src="" alt="Avatar" class="w-8 h-8 rounded-full border border-gray-600 bg-gray-700">
-        <span id="user-display-name" class="text-sm font-medium text-gray-300"></span>
-        <button id="btn-logout" class="text-xs text-gray-400 hover:text-red-400 transition" title="Đăng xuất">
-            <i class="fa-solid fa-right-from-bracket text-base"></i>
-        </button>
-    </div>
-</div>
+            <div id="user-header-zone" class="flex items-center space-x-3">
+                <!-- Mặc định khi chưa đăng nhập sẽ hiện nút này -->
+                <button id="btn-open-auth-modal" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 px-4 rounded-lg transition">
+                    Đăng nhập
+                </button>
+                
+                <!-- Khi đã đăng nhập thành công, JS sẽ gỡ lớp 'hidden' để hiện cụm này -->
+                <div id="user-logged-in" class="hidden flex items-center space-x-3">
+                    <img id="user-avatar" src="" alt="Avatar" class="w-8 h-8 rounded-full border border-gray-600 bg-gray-700">
+                    <span id="user-display-name" class="text-sm font-medium text-gray-300"></span>
+                    <button id="btn-logout" class="text-xs text-gray-400 hover:text-red-400 transition" title="Đăng xuất">
+                        <i class="fa-solid fa-right-from-bracket text-base"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
     </header>
 
-    <!-- 2. BỐ CỤC CHÍNH (3 CỘT GIỐNG VIDEO MON FANSUB) -->
+    <!-- 2. BỐ CỤC CHÍNH (3 CỘT) -->
     <main class="max-w-[1400px] mx-auto px-6 py-6 grid grid-cols-12 gap-6">
         
-        <!-- CỘT TRÁI: Menu điều hướng nhanh (Gồm 3 cột trong lưới) -->
+        <!-- CỘT TRÁI: Menu điều hướng nhanh -->
         <aside class="col-span-3 space-y-2 sticky top-20 h-fit">
             <a href="#" class="flex items-center space-x-3 p-3 rounded-xl bg-[#16181f] text-white font-medium transition">
                 <i class="fa-solid fa-bolt text-yellow-500 w-5 text-center"></i>
@@ -79,24 +81,22 @@
             </a>
         </aside>
 
-        <!-- CỘT GIỮA: Dòng thời gian / Danh sách bài viết Newsfeed (Gồm 6 cột trong lưới) -->
+        <!-- CỘT GIỮA: Dòng thời gian / Danh sách bài viết Newsfeed -->
         <section class="col-span-6">
-            
-            <!-- ĐÃ THAY ĐỔI: Thêm thẻ div container này để file js/newsfeed.js tự động nạp bài viết từ Firebase vào đây -->
             <div id="newsfeed-container" class="space-y-6">
                 <p class="text-center text-sm text-gray-500 py-4">Đang tải bản tin...</p>
             </div>
-
         </section>
 
-        <!-- CỘT PHẢI: Hộp công cụ tạo bài viết (Gồm 3 cột trong lưới) -->
+        <!-- CỘT PHẢI: Hộp công cụ tạo bài viết -->
         <aside class="col-span-3 space-y-4 sticky top-20 h-fit">
             <div class="bg-[#16181f] rounded-2xl p-4 border border-gray-800/50 space-y-4 text-center">
                 <div class="flex items-center space-x-3 justify-start text-left">
-                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=mon" alt="Avatar" class="w-10 h-10 rounded-full bg-gray-700">
-                    <p class="text-sm font-medium text-gray-300">nguyễn tuấn khải</p>
+                    <!-- ĐÃ THÊM ID: Để tự động cập nhật đúng Avatar và Tên của tài khoản khi đăng nhập -->
+                    <img id="side-user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=mon" alt="Avatar" class="w-10 h-10 rounded-full bg-gray-700">
+                    <p id="side-user-name" class="text-sm font-medium text-gray-300">Khách ẩn danh</p>
                 </div>
-                <!-- Nút bấm mở pop-up Tạo bài viết (Nút xanh lá signature) -->
+                <!-- Nút bấm mở pop-up Tạo bài viết -->
                 <button id="btn-open-post-modal" class="w-full bg-[#248a3d] hover:bg-[#1e7232] text-white font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition text-sm shadow-md">
                     <i class="fa-solid fa-pen-nib"></i> Tạo bài viết
                 </button>
@@ -105,7 +105,7 @@
 
     </main>
 
-    <!-- 3. POP-UP TẠO BÀI VIẾT (MẶC ĐỊNH LÀ ẨN - HIDDEN) -->
+    <!-- 3. POP-UP TẠO BÀI VIẾT (MẶC ĐỊNH ẨN) -->
     <div id="post-modal" class="hidden fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
         <div class="bg-[#16181f] border border-gray-800 w-full max-w-lg rounded-2xl p-5 space-y-4 relative animate-fade-in">
             <div class="flex items-center justify-between border-b border-gray-800 pb-3">
@@ -131,15 +131,57 @@
         </div>
     </div>
 
-    <!-- Nhúng file cấu hình Firebase & Cloudinary của tụi mình vào cuối trang -->
+    <!-- 4. ĐÃ TÍCH HỢP: POP-UP ĐĂNG NHẬP / ĐĂNG KÝ (MẶC ĐỊNH ẨN) -->
+    <div id="auth-modal" class="hidden fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+        <div class="bg-[#16181f] border border-gray-800 w-full max-w-md rounded-2xl p-6 space-y-4 relative">
+            <!-- Tiêu đề hộp thoại -->
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+                <h3 id="auth-modal-title" class="text-lg font-bold text-white">Đăng Nhập Toàn Cầu</h3>
+                <button id="btn-close-auth-modal" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            
+            <!-- Các ô điền thông tin -->
+            <div class="space-y-3">
+                <!-- Ô nhập Tên hiển thị (Mặc định ẩn, chỉ hiện khi đổi sang chế độ Đăng Ký) -->
+                <div id="auth-username-group" class="hidden space-y-1">
+                    <label class="text-xs text-gray-400">Tên của bồ:</label>
+                    <input type="text" id="auth-username" placeholder="Ví dụ: Nobi Nobita" class="w-full bg-[#20232b] rounded-xl p-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-gray-600">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs text-gray-400">Email:</label>
+                    <input type="email" id="auth-email" placeholder="monfansub@gmail.com" class="w-full bg-[#20232b] rounded-xl p-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-gray-600">
+                </div>
+                
+                <div class="space-y-1">
+                    <label class="text-xs text-gray-400">Mật khẩu:</label>
+                    <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-[#20232b] rounded-xl p-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-gray-600">
+                </div>
+            </div>
+
+            <!-- Nút kích hoạt hành động -->
+            <button id="btn-auth-submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl transition text-sm">
+                Đăng Nhập
+            </button>
+
+            <!-- Dòng chữ đổi trạng thái qua lại giữa Đăng nhập / Đăng ký -->
+            <p class="text-center text-xs text-gray-400 pt-2">
+                <span id="auth-toggle-text">Chưa có tài khoản?</span> 
+                <button id="btn-toggle-auth-mode" class="text-blue-500 hover:underline font-medium ml-1">Đăng ký ngay</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- Nhúng file xử lý logic giao diện popup bằng JS thuần -->
     <script type="module">
-        // Lệnh bật tắt Modal Pop-up Tạo bài viết bằng JS thuần
-        const modal = document.getElementById('post-modal');
-        document.getElementById('btn-open-post-modal').addEventListener('click', () => modal.classList.remove('hidden'));
-        document.getElementById('btn-close-post-modal').addEventListener('click', () => modal.classList.add('hidden'));
+        // Bật tắt Modal Tạo bài viết
+        const postModal = document.getElementById('post-modal');
+        document.getElementById('btn-open-post-modal').addEventListener('click', () => postModal.classList.remove('hidden'));
+        document.getElementById('btn-close-post-modal').addEventListener('click', () => postModal.classList.add('hidden'));
     </script>
 
-    <!-- ĐỀ XUẤT THAY ĐỔI: Nhúng file logic xử lý Newsfeed chính thức vào trang web -->
+    <!-- Nhúng các file xử lý logic hệ thống chính thức -->
+    <script type="module" src="./js/auth.js"></script>
     <script type="module" src="./js/newsfeed.js"></script>
 </body>
 </html>
