@@ -1,11 +1,10 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+// js/firebase-config.js
+// ĐÃ SỬA: Thay đổi cách import sang CDN chạy trực tiếp trên trình duyệt
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Cấu hình chuẩn của Doraemon Fansub Việt Nam
 const firebaseConfig = {
   apiKey: "AIzaSyBt3G9n5JYu3EsvqJR9IoW2vRAc_Es3-ws",
   authDomain: "doraemon-fansub-vietnam.firebaseapp.com",
@@ -16,6 +15,10 @@ const firebaseConfig = {
   measurementId: "G-0S2Z4XRK0B"
 };
 
-// Initialize Firebase
+// Khởi tạo Firebase (Chỉ gọi duy nhất một lần ở đây)
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Xuất các biến auth và db ra ngoài để file js/auth.js và js/newsfeed.js gọi vào xài
+export { auth, db };
