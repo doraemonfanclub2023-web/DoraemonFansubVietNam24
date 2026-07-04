@@ -124,16 +124,39 @@ if (newsfeedContainer) {
             btn.onclick = async () => {
                 const postId = btn.dataset.id;
                 popup.classList.remove('hidden');
-                commentList.innerHTML = 'Đang tải...';
+                
+                // Hàm load bình luận riêng để gọi lại sau khi gửi
+                const loadComments = async () => {
+                    commentList.innerHTML = 'Đang tải...';
+                    const qComments = query(collection(db, "comments"), where("postId", "==", postId), orderBy("createdAt", "asc"));
+                    const commentsSnap = await getDocs(qComments);
+                    commentList.innerHTML = '';
+                    commentsSnap.forEach(c => {
+                        const com = c.data();
+                        commentList.innerHTML += `<p class="text-sm text-gray-300"><span class="font-bold text-blue-400">${com.username}:</span> ${com.content}</p>`;
+                    });
+                };
 
-                const qComments = query(collection(db, "comments"), where("postId", "==", postId), orderBy("createdAt", "asc"));
-                const commentsSnap = await getDocs(qComments);
-                commentList.innerHTML = '';
-                commentsSnap.forEach(c => {
-                    const com = c.data();
-                    commentList.innerHTML += `<p class="text-sm text-gray-300"><span class="font-bold text-blue-400">${com.username}:</span> ${com.content}</p>`;
-                });
+                await loadComments();
 
+                // Gán sự kiện gửi - dùng arrow function để không bị ghi đè chồng chéo
+                sendBtn.onclick = async () => {
+                    if (!auth.currentUser) return alert("Đăng nhập mới bình luận được!");
+                    if (!commentInput.value.trim()) return;
+                    
+                    await addDoc(collection(db, "comments"), { 
+                        postId, 
+                        uid: auth.currentUser.uid, 
+                        username: auth.currentUser.displayName || "Thành viên", 
+                        content: commentInput.value.trim(), 
+                        createdAt: serverTimestamp() 
+                    });
+                    
+                    commentInput.value = '';
+                    loadComments(); // Tải lại danh sách sau khi gửi thành công
+                };
+            };
+        });
                 sendBtn.onclick = async () => {
                     if (!auth.currentUser) return alert("Đăng nhập mới bình luận được!");
                     if (!commentInput.value.trim()) return;
