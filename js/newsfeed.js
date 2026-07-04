@@ -1,10 +1,11 @@
-// Đường dẫn được chỉnh lại để tìm file trong cùng thư mục js/
-import { auth, db } from './firebase-config.js';
+// ĐƯỜNG DẪN ĐÃ ĐƯỢC CHỈNH VỀ DẠNG TƯƠNG ĐỐI (./) ĐỂ TƯƠNG THÍCH VỚI GITHUB PAGES
+import { auth, db } from './firebase-config.js'; 
 import { cloudinaryConfig, CLOUDINARY_URL } from './cloudinary-config.js';
 import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, doc, deleteDoc, setDoc, getDoc, getDocs, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const getEl = (id) => document.getElementById(id);
 
+// Hàm upload ảnh lên Cloudinary
 async function uploadToCloudinary(file) {
     const formData = new FormData();
     formData.append('file', file);
@@ -19,6 +20,7 @@ async function uploadToCloudinary(file) {
     }
 }
 
+// Xử lý đăng bài
 const btnSubmitPost = getEl('btn-submit-post');
 if (btnSubmitPost) {
     btnSubmitPost.addEventListener('click', async () => {
@@ -46,8 +48,8 @@ if (btnSubmitPost) {
     });
 }
 
+// Hiển thị Newsfeed
 const newsfeedContainer = getEl('newsfeed-container');
-
 if (newsfeedContainer) {
     const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
     
