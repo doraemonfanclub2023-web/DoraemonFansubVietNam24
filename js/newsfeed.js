@@ -1,34 +1,19 @@
-// ĐƯỜNG DẪN ĐÃ ĐƯỢC CHỈNH VỀ DẠNG TƯƠNG ĐỐI (./) ĐỂ TƯƠNG THÍCH VỚI GITHUB PAGES
-import { db } from './firebase-config.js';
-import { collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-
-// Dùng onSnapshot để dữ liệu luôn tự động cập nhật ngay khi có bài mới
-const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-onSnapshot(q, (snapshot) => {
-    newsfeedContainer.innerHTML = ''; // Clear cũ
-    snapshot.forEach((doc) => {
-        const post = doc.data();
-        // Render lại danh sách bài viết ở đây...
-        console.log("Dữ liệu mới đã về!");
-    });
-});
+import { db, auth } from './firebase-config.js'; // Đảm bảo đã import auth từ file config
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc, setDoc, deleteDoc, getDocs, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const getEl = (id) => document.getElementById(id);
+const newsfeedContainer = getEl('newsfeed-container'); // KHAI BÁO 1 LẦN DUY NHẤT Ở ĐÂY
 
-// Hàm upload ảnh lên Cloudinary
+// Hàm upload ảnh
 async function uploadToCloudinary(file) {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+    formData.append('upload_preset', "tên_preset_của_bồ"); // Thay lại preset của bồ nhé
     try {
-        const response = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+        const response = await fetch("https://api.cloudinary.com/v1_1/tên_cloud_của_bồ/image/upload", { method: 'POST', body: formData });
         const data = await response.json();
         return data.secure_url;
-    } catch (error) { 
-        console.error("Lỗi upload:", error); 
-        return null; 
-    }
+    } catch (error) { console.error("Lỗi upload:", error); return null; }
 }
 
 // Xử lý đăng bài
@@ -54,13 +39,11 @@ if (btnSubmitPost) {
                 createdAt: serverTimestamp()
             });
             getEl('post-content').value = '';
-            getEl('post-file').value = '';
         } catch (e) { console.error(e); } finally { btnSubmitPost.disabled = false; }
     });
 }
 
-// Hiển thị Newsfeed
-const newsfeedContainer = getEl('newsfeed-container');
+// Hiển thị Newsfeed (Đã gộp chung vào 1 khối logic duy nhất)
 if (newsfeedContainer) {
     const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
     
@@ -83,61 +66,28 @@ if (newsfeedContainer) {
             const postCard = `
                 <div class="post-item bg-[#16181f] rounded-2xl p-4 border border-gray-800/50 space-y-3">
                     <div class="flex items-center space-x-3">
-                        <img src="${post.avatar}" class="w-10 h-10 rounded-full bg-gray-700" alt="avatar">
+                        <img src="${post.avatar}" class="w-10 h-10 rounded-full" alt="avatar">
                         <div class="flex-1">
                             <h4 class="font-semibold text-sm text-white">${post.username}</h4>
                             <p class="text-[10px] text-gray-500">${date}</p>
                         </div>
                         <div class="relative group">
-                            <button class="text-gray-400 hover:text-white p-2"><i class="fa-solid fa-ellipsis"></i></button>
-                            <div class="absolute right-0 mt-0 w-32 bg-[#20232b] rounded-lg shadow-xl hidden group-hover:block z-50 border border-gray-700">
-                                ${isOwner ? `<button data-id="${docSnap.id}" class="delete-btn w-full text-left px-4 py-2 text-sm hover:bg-gray-700 text-red-400">Xóa</button>` : `<button onclick="alert('Đã báo cáo!')" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-700 text-yellow-400 rounded-lg">Báo cáo</button>`}
+                            <button class="text-gray-400 p-2"><i class="fa-solid fa-ellipsis"></i></button>
+                            <div class="absolute right-0 mt-0 w-32 bg-[#20232b] rounded-lg hidden group-hover:block z-50 border border-gray-700">
+                                ${isOwner ? `<button data-id="${docSnap.id}" class="delete-btn w-full text-left px-4 py-2 text-sm text-red-400">Xóa</button>` : ''}
                             </div>
                         </div>
                     </div>
                     <p class="text-sm text-gray-200 whitespace-pre-line">${post.content}</p>
-                    ${post.mediaUrl ? `<img src="${post.mediaUrl}" class="max-h-96 w-full object-cover rounded-xl mt-2 post-image cursor-pointer" alt="post-img">` : ''}
+                    ${post.mediaUrl ? `<img src="${post.mediaUrl}" class="max-h-96 w-full object-cover rounded-xl mt-2" alt="post-img">` : ''}
                     <div class="flex gap-6 mt-3 border-t border-gray-800 pt-3">
-                        <button data-id="${docSnap.id}" class="like-btn text-sm transition ${isLiked ? 'text-blue-500' : 'text-gray-400'}">
-                            <i class="${isLiked ? 'fa-solid' : 'fa-regular'} fa-thumbs-up mr-1"></i> Like
-                        </button>
-                        <button data-id="${docSnap.id}" class="comment-btn text-gray-400 hover:text-blue-500 transition text-sm">
-                            <i class="fa-regular fa-comment mr-1"></i> Bình luận
+                        <button data-id="${docSnap.id}" class="like-btn text-sm ${isLiked ? 'text-blue-500' : 'text-gray-400'}">
+                            <i class="fa-thumbs-up mr-1"></i> Like
                         </button>
                     </div>
                 </div>
             `;
             newsfeedContainer.insertAdjacentHTML('beforeend', postCard);
         });
-
-        newsfeedContainer.onclick = async (e) => {
-            const target = e.target;
-            if (target.closest('.like-btn')) {
-                const btn = target.closest('.like-btn');
-                if (!auth.currentUser) return alert("Đăng nhập mới like được!");
-                const postId = btn.dataset.id;
-                const likeRef = doc(db, "likes", `${postId}_${auth.currentUser.uid}`);
-                const likeSnap = await getDoc(likeRef);
-                if (likeSnap.exists()) {
-                    await deleteDoc(likeRef);
-                    btn.className = "like-btn text-sm transition text-gray-400";
-                } else {
-                    await setDoc(likeRef, { postId, uid: auth.currentUser.uid, createdAt: serverTimestamp() });
-                    btn.className = "like-btn text-sm transition text-blue-500";
-                }
-            }
-            if (target.closest('.delete-btn')) {
-                const btn = target.closest('.delete-btn');
-                if(confirm("Xóa bài này?")) await deleteDoc(doc(db, "posts", btn.dataset.id));
-            }
-            if (target.closest('.comment-btn')) {
-                const btn = target.closest('.comment-btn');
-                const popup = document.getElementById('comment-popup');
-                if (popup) {
-                    popup.classList.remove('hidden');
-                    popup.dataset.postId = btn.dataset.id;
-                }
-            }
-        };
     });
 }
