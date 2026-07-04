@@ -78,7 +78,7 @@ if (newsfeedContainer) {
                             </div>
                         </div>
                     </div>
-                    <p class="text-sm text-gray-200">${post.content}</p>
+                    <p class="text-sm text-gray-200 whitespace-pre-line">${post.content}</p>
                     ${post.mediaUrl ? `<img src="${post.mediaUrl}" class="post-image max-h-96 w-full object-cover rounded-xl mt-2 cursor-pointer">` : ''}
                     <div class="flex gap-6 mt-3 border-t border-gray-800 pt-3">
                         <button class="like-btn text-gray-400 hover:text-blue-500 transition text-sm">
