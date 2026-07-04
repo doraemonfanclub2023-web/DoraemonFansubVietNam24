@@ -1,5 +1,5 @@
-import { auth, db } from './firebase-config.js';
-import { cloudinaryConfig, CLOUDINARY_URL } from './cloudinary-config.js';
+import { auth, db } from '../firebase-config.js';
+import { cloudinaryConfig, CLOUDINARY_URL } from '../cloudinary-config.js';
 import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, doc, deleteDoc, setDoc, getDoc, getDocs, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const getEl = (id) => document.getElementById(id);
@@ -85,7 +85,7 @@ if (newsfeedContainer) {
                         </div>
                     </div>
                     <p class="text-sm text-gray-200 whitespace-pre-line">${post.content}</p>
-                    ${post.mediaUrl ? `<img src="${post.mediaUrl}" class="max-h-96 w-full object-cover rounded-xl mt-2">` : ''}
+                    ${post.mediaUrl ? `<img src="${post.mediaUrl}" class="max-h-96 w-full object-cover rounded-xl mt-2 post-image cursor-pointer">` : ''}
                     <div class="flex gap-6 mt-3 border-t border-gray-800 pt-3">
                         <button data-id="${docSnap.id}" class="like-btn text-sm transition ${isLiked ? 'text-blue-500' : 'text-gray-400'}">
                             <i class="${isLiked ? 'fa-solid' : 'fa-regular'} fa-thumbs-up mr-1"></i> Like
@@ -123,13 +123,13 @@ if (newsfeedContainer) {
             };
         });
 
-        // MỚI: Gắn sự kiện mở Popup Bình luận
+        // Gắn sự kiện mở Popup
         newsfeedContainer.querySelectorAll('.comment-btn').forEach(btn => {
             btn.onclick = () => {
                 const popup = document.getElementById('comment-popup');
                 if (popup) {
                     popup.classList.remove('hidden');
-                    popup.dataset.postId = btn.dataset.id; // Lưu ID bài viết vào popup
+                    popup.dataset.postId = btn.dataset.id;
                 }
             };
         });
