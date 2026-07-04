@@ -9,19 +9,29 @@
 </head>
 <body class="bg-[#0d0e12] text-white">
 
+    <!-- Header đầy đủ -->
     <header class="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-[#16181f] border-b border-gray-800">
-        <h1 class="text-xl font-bold text-blue-500">doraemon<span class="text-white">fansub</span></h1>
+        <div class="flex items-center gap-6">
+            <h1 class="text-xl font-bold text-blue-500">doraemon<span class="text-white">fansub</span></h1>
+            <nav class="flex gap-4 text-sm text-gray-400">
+                <a href="index.html" class="text-white">Trang chủ</a>
+                <a href="watch.html">Xem phim</a>
+            </nav>
+        </div>
+        
+        <!-- Khu vực này chứa nút đăng nhập và trạng thái đăng nhập -->
         <div id="user-header-zone">
             <button id="btn-open-auth-modal" class="bg-blue-600 px-4 py-2 rounded-lg text-sm">Đăng nhập</button>
             <div id="user-logged-in" class="hidden flex items-center gap-3">
                 <img id="user-avatar" class="w-8 h-8 rounded-full">
                 <span id="user-display-name"></span>
-                <button id="btn-logout" class="text-red-400">Đăng xuất</button>
+                <button id="btn-logout" class="text-red-400 text-sm">Đăng xuất</button>
             </div>
         </div>
     </header>
 
     <main class="max-w-4xl mx-auto p-6">
+        <!-- Khung đăng bài -->
         <div id="post-modal" class="bg-[#16181f] p-4 rounded-2xl mb-6 border border-gray-800">
             <textarea id="post-content" placeholder="Bồ đang nghĩ gì thế?" class="w-full bg-[#20232b] text-white p-3 rounded-lg mb-2"></textarea>
             <div class="flex justify-between items-center">
@@ -32,6 +42,7 @@
         <div id="newsfeed-container" class="space-y-6"></div>
     </main>
 
+    <!-- Modal Đăng nhập -->
     <div id="auth-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center hidden">
         <div class="bg-[#16181f] p-6 rounded-2xl w-80">
             <input type="text" id="auth-username" placeholder="Tên hiển thị" class="w-full mb-3 bg-[#20232b] p-2 rounded hidden">
@@ -41,8 +52,7 @@
         </div>
     </div>
 
-    <!-- Sửa đường dẫn tuyệt đối cho GitHub Pages -->
-    <script type="module" src="/js/auth.js"></script>
-    <script type="module" src="/js/newsfeed.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/newsfeed.js"></script>
 </body>
 </html>
