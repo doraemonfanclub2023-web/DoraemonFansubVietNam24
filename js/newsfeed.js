@@ -99,7 +99,7 @@ if (newsfeedContainer) {
             newsfeedContainer.insertAdjacentHTML('beforeend', postCard);
         });
 
-        // Gắn sự kiện Like và Xóa
+        // Gắn sự kiện Like
         newsfeedContainer.querySelectorAll('.like-btn').forEach(btn => {
             btn.onclick = async () => {
                 if (!auth.currentUser) return alert("Đăng nhập mới like được!");
@@ -116,9 +116,21 @@ if (newsfeedContainer) {
             };
         });
 
+        // Gắn sự kiện Xóa
         newsfeedContainer.querySelectorAll('.delete-btn').forEach(btn => {
             btn.onclick = async () => {
                 if(confirm("Xóa bài này?")) await deleteDoc(doc(db, "posts", btn.dataset.id));
+            };
+        });
+
+        // MỚI: Gắn sự kiện mở Popup Bình luận
+        newsfeedContainer.querySelectorAll('.comment-btn').forEach(btn => {
+            btn.onclick = () => {
+                const popup = document.getElementById('comment-popup');
+                if (popup) {
+                    popup.classList.remove('hidden');
+                    popup.dataset.postId = btn.dataset.id; // Lưu ID bài viết vào popup
+                }
             };
         });
     });
