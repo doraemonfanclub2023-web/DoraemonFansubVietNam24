@@ -1,6 +1,8 @@
-// Sử dụng đường dẫn tuyệt đối để GitHub Pages không bị lạc đường
-import { auth, db } from '/firebase-config.js';
-import { cloudinaryConfig, CLOUDINARY_URL } from '/cloudinary-config.js';
+// Đường dẫn được chỉnh lại để tìm file trong cùng thư mục js/
+import { auth, db } from './firebase-config.js';
+import { cloudinaryConfig, CLOUDINARY_URL } from './cloudinary-config.js';
+import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, doc, deleteDoc, setDoc, getDoc, getDocs, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 const getEl = (id) => document.getElementById(id);
 
 async function uploadToCloudinary(file) {
@@ -95,11 +97,8 @@ if (newsfeedContainer) {
             newsfeedContainer.insertAdjacentHTML('beforeend', postCard);
         });
 
-        // Gắn sự kiện (Event Delegation để tránh lỗi mất sự kiện khi render lại)
         newsfeedContainer.onclick = async (e) => {
             const target = e.target;
-            
-            // Xử lý Like
             if (target.closest('.like-btn')) {
                 const btn = target.closest('.like-btn');
                 if (!auth.currentUser) return alert("Đăng nhập mới like được!");
@@ -114,14 +113,10 @@ if (newsfeedContainer) {
                     btn.className = "like-btn text-sm transition text-blue-500";
                 }
             }
-
-            // Xử lý Xóa
             if (target.closest('.delete-btn')) {
                 const btn = target.closest('.delete-btn');
                 if(confirm("Xóa bài này?")) await deleteDoc(doc(db, "posts", btn.dataset.id));
             }
-
-            // Xử lý mở Popup
             if (target.closest('.comment-btn')) {
                 const btn = target.closest('.comment-btn');
                 const popup = document.getElementById('comment-popup');
