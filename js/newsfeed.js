@@ -120,8 +120,6 @@ if (newsfeedContainer) {
             };
         });
 
-        <!-- Khung Popup Bình Luận -->
-<div id="comment-popup" class="fixed inset-0 bg-black/80 hidden z-50 flex items-center justify-center">
     <div class="bg-[#20232b] p-6 rounded-2xl w-96 border border-gray-700">
         <h3 class="text-white font-bold mb-4">Bình luận bài viết</h3>
         <div id="comment-list" class="max-h-60 overflow-y-auto mb-4 space-y-2 text-white"></div>
