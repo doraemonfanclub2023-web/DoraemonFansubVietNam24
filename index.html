@@ -1,35 +1,67 @@
-<!-- Bố cục chính đã được fix -->
-<main class="max-w-[1400px] mx-auto px-6 py-6 grid grid-cols-12 gap-6">
-    <aside class="col-span-3 space-y-2 sticky top-20 h-fit">
-        <a href="#" class="flex items-center space-x-3 p-3 rounded-xl bg-[#16181f] text-white font-medium transition">
-            <i class="fa-solid fa-bolt text-yellow-500 w-5 text-center"></i> <span>Mới nhất</span>
-        </a>
-    </aside>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doraemon Fansub - Mạng Xã Hội Hoạt Hình</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>body { background-color: #0d0e12; color: #ffffff; }</style>
+</head>
+<body>
 
-    <section class="col-span-6">
-        <div id="newsfeed-container" class="space-y-6">
-            <!-- Bản tin Tagger đã nằm đúng chỗ và không còn dòng "Đang tải" nữa -->
-            <div id="news-wrapper" class="p-4 bg-[#16181f] rounded-lg border border-gray-700">
-                <div class="space-y-2">
-                    <span class="px-2 py-1 bg-yellow-600 text-xs rounded text-white font-bold inline-block">TAGGER: SÁNG MAI</span>
-                    <h3 class="font-bold text-lg">Thông báo lịch chiếu</h3>
-                    <p class="text-sm text-gray-300">Lịch chiếu phim Doraemon đã được cập nhật. Bồ kiểm tra trong danh sách phim nhé!</p>
+    <!-- Header -->
+    <header class="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-[#16181f] border-b border-gray-800">
+        <div class="flex items-center space-x-6">
+            <h1 class="text-xl font-bold text-blue-500 tracking-wider flex items-center">
+                <i class="fa-solid fa-cat mr-2 text-blue-400"></i> doraemon<span class="text-white">fansub</span>
+            </h1>
+            <nav class="flex space-x-4 text-gray-400">
+                <a href="index.html" class="text-white bg-gray-800 px-3 py-1.5 rounded-lg flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-house"></i> Trang chủ
+                </a>
+                <a href="watch.html" class="hover:text-white px-3 py-1.5 flex items-center gap-2 text-sm transition">
+                    <i class="fa-solid fa-film"></i> Xem phim
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-[1400px] mx-auto px-6 py-6 grid grid-cols-12 gap-6">
+        <aside class="col-span-3 space-y-2 sticky top-20 h-fit">
+            <a href="#" class="flex items-center space-x-3 p-3 rounded-xl bg-[#16181f] text-white font-medium transition">
+                <i class="fa-solid fa-bolt text-yellow-500 w-5 text-center"></i> <span>Mới nhất</span>
+            </a>
+        </aside>
+
+        <section class="col-span-6">
+            <div id="newsfeed-container" class="space-y-6">
+                <!-- Bản tin Tagger -->
+                <div id="news-wrapper" class="p-4 bg-[#16181f] rounded-lg border border-gray-700">
+                    <div class="space-y-2">
+                        <span class="px-2 py-1 bg-yellow-600 text-xs rounded text-white font-bold inline-block">TAGGER: SÁNG MAI</span>
+                        <h3 class="font-bold text-lg">Thông báo lịch chiếu</h3>
+                        <p class="text-sm text-gray-300">Lịch chiếu phim Doraemon đã được cập nhật. Bồ kiểm tra trong danh sách phim nhé!</p>
+                    </div>
                 </div>
             </div>
-            <!-- Các bài viết từ newsfeed.js sẽ tự động load tiếp vào dưới này -->
-        </div>
-    </section>
+        </section>
 
-    <aside class="col-span-3 space-y-4 sticky top-20 h-fit">
-        <!-- Phần profile giữ nguyên -->
-        <div class="bg-[#16181f] rounded-2xl p-4 border border-gray-800/50 space-y-4 text-center">
-            <div class="flex items-center space-x-3 justify-start text-left">
-                <img id="side-user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=doraemon" alt="Avatar" class="w-10 h-10 rounded-full bg-gray-700">
-                <p id="side-user-name" class="text-sm font-medium text-gray-300">Khách ẩn danh</p>
+        <aside class="col-span-3 space-y-4 sticky top-20 h-fit">
+            <div class="bg-[#16181f] rounded-2xl p-4 border border-gray-800/50 space-y-4 text-center">
+                <div class="flex items-center space-x-3 justify-start text-left">
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=doraemon" alt="Avatar" class="w-10 h-10 rounded-full bg-gray-700">
+                    <p class="text-sm font-medium text-gray-300">Khách ẩn danh</p>
+                </div>
+                <button class="w-full bg-[#248a3d] hover:bg-[#16181f] text-white font-semibold py-2.5 rounded-xl transition text-sm">
+                    <i class="fa-solid fa-pen-nib"></i> Tạo bài viết
+                </button>
             </div>
-            <button id="btn-open-post-modal" class="w-full bg-[#248a3d] hover:bg-[#16181f] text-white font-semibold py-2.5 rounded-xl transition text-sm">
-                <i class="fa-solid fa-pen-nib"></i> Tạo bài viết
-            </button>
-        </div>
-    </aside>
-</main>
+        </aside>
+    </main>
+
+    <script type="module" src="./js/auth.js"></script>
+    <script type="module" src="./js/newsfeed.js"></script>
+</body>
+</html>
