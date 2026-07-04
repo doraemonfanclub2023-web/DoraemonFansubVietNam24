@@ -4,7 +4,7 @@ import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from 
 
 const getEl = (id) => document.getElementById(id);
 
-// Hàm upload ảnh giữ nguyên
+// Hàm upload ảnh
 async function uploadToCloudinary(file) {
     const formData = new FormData();
     formData.append('file', file);
@@ -19,7 +19,7 @@ async function uploadToCloudinary(file) {
     }
 }
 
-// Xử lý đăng bài... (phần cũ của bồ giữ nguyên)
+// Xử lý đăng bài
 const btnSubmitPost = getEl('btn-submit-post');
 if (btnSubmitPost) {
     btnSubmitPost.addEventListener('click', async () => {
@@ -55,7 +55,7 @@ if (btnSubmitPost) {
     });
 }
 
-// Render danh sách bài viết (ĐÃ SỬA)
+// Render danh sách bài viết
 const newsfeedContainer = getEl('newsfeed-container');
 if (newsfeedContainer) {
     const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
@@ -76,21 +76,36 @@ if (newsfeedContainer) {
                     </div>
                     <p class="text-sm text-gray-200">${post.content}</p>
                     
-                    <!-- ẢNH ĐÃ GIỚI HẠN KÍCH THƯỚC (max-h-96, w-full, object-cover) -->
-                    ${post.mediaUrl ? `<img src="${post.mediaUrl}" class="max-h-96 w-full object-cover rounded-xl mt-2">` : ''}
+                    <!-- Ảnh đã thêm class post-image để bấm xem full -->
+                    ${post.mediaUrl ? `<img src="${post.mediaUrl}" class="post-image max-h-96 w-full object-cover rounded-xl mt-2 cursor-pointer">` : ''}
                     
-                    <!-- NÚT LIKE VÀ BÌNH LUẬN -->
+                    <!-- Nút Like và Bình luận -->
                     <div class="flex gap-6 mt-3 border-t border-gray-800 pt-3">
-                        <button class="text-gray-400 hover:text-blue-500 transition text-sm">
+                        <button class="like-btn text-gray-400 hover:text-blue-500 transition text-sm">
                             <i class="fa-regular fa-thumbs-up mr-1"></i> Like
                         </button>
-                        <button class="text-gray-400 hover:text-blue-500 transition text-sm">
+                        <button class="comment-btn text-gray-400 hover:text-blue-500 transition text-sm">
                             <i class="fa-regular fa-comment mr-1"></i> Bình luận
                         </button>
                     </div>
                 </div>
             `;
             newsfeedContainer.insertAdjacentHTML('beforeend', postCard);
+        });
+
+        // Gán sự kiện phản hồi sau khi đã render xong
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.onclick = () => {
+                btn.classList.toggle('text-blue-500');
+                alert("Bồ đã thích bài này!");
+            };
+        });
+
+        document.querySelectorAll('.comment-btn').forEach(btn => {
+            btn.onclick = () => {
+                const cmt = prompt("Bình luận gì đi bồ:");
+                if(cmt) alert("Bồ đã bình luận: " + cmt);
+            };
         });
     });
 }
