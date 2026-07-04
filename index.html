@@ -9,7 +9,29 @@
     <style>body { background-color: #0d0e12; color: #ffffff; }</style>
 </head>
 <body>
+<!-- Khu vực chứa bản tin -->
+<div id="news-wrapper" class="p-4 bg-[#16181f] rounded-lg border border-gray-700">
+    <div id="news-display">
+        <!-- Nội dung sẽ tự hiển thị ở đây -->
+    </div>
+</div>
 
+<script>
+    // Hàm hiển thị bản tin ngay lập tức, không chờ đợi gây treo
+    function loadNews() {
+        const display = document.getElementById('news-display');
+        display.innerHTML = `
+            <div class="space-y-2">
+                <span class="px-2 py-1 bg-yellow-600 text-xs rounded text-white font-bold inline-block">TAGGER: SÁNG MAI</span>
+                <h3 class="font-bold text-lg">Thông báo lịch chiếu</h3>
+                <p class="text-sm text-gray-300">Lịch chiếu phim Doraemon đã được cập nhật. Bồ kiểm tra trong danh sách phim nhé!</p>
+            </div>
+        `;
+    }
+
+    // Chạy luôn khi trang web vừa tải xong
+    loadNews();
+</script>
     <!-- 1. THANH HEADER ĐÃ CHỈNH SỬA GỌN GÀNG -->
     <header class="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-[#16181f] border-b border-gray-800">
         <div class="flex items-center space-x-6">
