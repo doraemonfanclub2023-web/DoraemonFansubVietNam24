@@ -4,6 +4,118 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DoraemonFanSub - Newsfeed & Xem phim</title>
+    
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyBt3G9n5JYu3EsvqJR9IoW2vRAc_Es3-ws",
+            authDomain: "doraemon-fansub-vietnam.firebaseapp.com",
+            projectId: "doraemon-fansub-vietnam",
+            storageBucket: "doraemon-fansub-vietnam.firebasestorage.app",
+            messagingSenderId: "380840935390",
+            appId: "1:380840935390:web:60fab4722a9fba5053a74f",
+            measurementId: "G-0S2Z4XRK0B"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const analytics = getAnalytics(app);
+        const provider = new GoogleAuthProvider();
+
+        // DOM Elements
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const userInfo = document.getElementById('userInfo');
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const userEmail = document.getElementById('userEmail');
+        const authButtons = document.getElementById('authButtons');
+        const postInput = document.getElementById('postInput');
+        const createPostBox = document.getElementById('createPostBox');
+
+        // ============= AUTH STATE =============
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User logged in
+                userInfo.style.display = 'flex';
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'block';
+                userAvatar.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + user.displayName;
+                userName.textContent = user.displayName || user.email;
+                userEmail.textContent = user.email;
+                
+                // Enable posting
+                postInput.placeholder = `${user.displayName || 'Bạn'} đang nghĩ gì thế?`;
+                createPostBox.style.opacity = '1';
+                createPostBox.style.pointerEvents = 'auto';
+                
+                console.log('✅ Đã đăng nhập:', user.displayName);
+            } else {
+                // User logged out
+                userInfo.style.display = 'none';
+                loginBtn.style.display = 'block';
+                logoutBtn.style.display = 'none';
+                postInput.placeholder = 'Vui lòng đăng nhập để viết bài';
+                createPostBox.style.opacity = '0.5';
+                createPostBox.style.pointerEvents = 'none';
+                
+                console.log('👤 Chưa đăng nhập');
+            }
+        });
+
+        // ============= LOGIN =============
+        window.loginWithGoogle = async function() {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                console.log('✅ Đăng nhập thành công:', result.user.displayName);
+                // Đóng modal nếu đang mở
+                closeLoginModal();
+            } catch (error) {
+                console.error('❌ Lỗi đăng nhập:', error);
+                alert('Đăng nhập thất bại: ' + error.message);
+            }
+        };
+
+        // ============= LOGOUT =============
+        window.logoutUser = async function() {
+            try {
+                await signOut(auth);
+                console.log('✅ Đã đăng xuất');
+            } catch (error) {
+                console.error('❌ Lỗi đăng xuất:', error);
+                alert('Đăng xuất thất bại: ' + error.message);
+            }
+        };
+
+        // ============= LOGIN MODAL =============
+        window.openLoginModal = function() {
+            document.getElementById('loginModal').classList.add('active');
+        };
+
+        window.closeLoginModal = function() {
+            document.getElementById('loginModal').classList.remove('active');
+        };
+
+        // Close modal on click outside
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) closeLoginModal();
+        });
+
+        // ============= EXPOSE FUNCTIONS TO GLOBAL =============
+        window.auth = auth;
+        window.signInWithPopup = signInWithPopup;
+        window.GoogleAuthProvider = GoogleAuthProvider;
+        window.provider = provider;
+
+        console.log('🔥 Firebase Auth đã sẵn sàng!');
+    </script>
+
     <style>
         * {
             margin: 0;
@@ -66,7 +178,8 @@
         nav {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
         nav a {
@@ -89,17 +202,73 @@
             color: #0d47a1;
         }
 
+        /* ===== USER INFO ===== */
+        #userInfo {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.15);
+            padding: 6px 16px 6px 6px;
+            border-radius: 30px;
+        }
+
+        #userInfo img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #ffeb3b;
+        }
+
+        #userInfo .user-detail {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        #userInfo .user-detail .name {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        #userInfo .user-detail .email {
+            color: rgba(255,255,255,0.7);
+            font-size: 11px;
+        }
+
         .login-btn {
             background: #ffeb3b;
             color: #0d47a1 !important;
             padding: 8px 20px;
             border-radius: 25px;
             font-weight: 700;
+            cursor: pointer;
+            border: none;
+            font-size: 15px;
+            transition: 0.3s;
         }
 
         .login-btn:hover {
             background: #fdd835;
             transform: scale(1.05);
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: white !important;
+            padding: 6px 16px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.3);
+            font-size: 13px;
+            transition: 0.3s;
+            display: none;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,0,0,0.3);
+            border-color: #ff4444;
         }
 
         /* ===== MAIN LAYOUT ===== */
@@ -123,6 +292,7 @@
             border-radius: 16px;
             padding: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: 0.3s;
         }
 
         .create-post-header {
@@ -387,8 +557,128 @@
             opacity: 1;
         }
 
-        /* ===== MODAL ===== */
-        .modal {
+        /* ===== LOGIN MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .login-modal {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .login-modal .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            transition: 0.3s;
+            background: none;
+            border: none;
+        }
+
+        .login-modal .close-modal:hover {
+            color: #1a1a2e;
+            transform: rotate(90deg);
+        }
+
+        .login-modal .logo-large {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+
+        .login-modal h2 {
+            font-size: 24px;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+
+        .login-modal p {
+            color: #65676b;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .login-modal .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e4e6eb;
+            border-radius: 30px;
+            background: white;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a2e;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .login-modal .google-btn:hover {
+            background: #f0f2f5;
+            border-color: #1a73e8;
+            transform: scale(1.02);
+        }
+
+        .login-modal .google-btn img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .login-modal .divider {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            color: #999;
+            font-size: 13px;
+        }
+
+        .login-modal .divider::before,
+        .login-modal .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e4e6eb;
+        }
+
+        /* ===== MOVIE MODAL ===== */
+        .movie-modal {
             display: none;
             position: fixed;
             top: 0;
@@ -402,11 +692,11 @@
             backdrop-filter: blur(5px);
         }
 
-        .modal.active {
+        .movie-modal.active {
             display: flex;
         }
 
-        .modal-content {
+        .movie-modal-content {
             background: #1a1a2e;
             border-radius: 20px;
             max-width: 750px;
@@ -417,7 +707,7 @@
             overflow-y: auto;
         }
 
-        .modal-close {
+        .movie-modal-close {
             position: absolute;
             top: 12px;
             right: 18px;
@@ -432,32 +722,33 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            border: none;
         }
 
-        .modal-close:hover {
+        .movie-modal-close:hover {
             background: #e94560;
             transform: rotate(90deg);
         }
 
-        .modal video {
+        .movie-modal video {
             width: 100%;
             border-radius: 12px;
             margin: 15px 0;
             background: #000;
         }
 
-        .modal h2 {
+        .movie-modal h2 {
             color: white;
             margin-bottom: 8px;
         }
 
-        .modal .modal-genre {
+        .movie-modal .modal-genre {
             color: #ffeb3b;
             font-weight: 600;
             font-size: 14px;
         }
 
-        .modal p {
+        .movie-modal p {
             color: #ccc;
             line-height: 1.6;
             margin: 8px 0 12px 0;
@@ -476,13 +767,16 @@
             }
 
             nav {
-                flex-wrap: wrap;
                 justify-content: center;
             }
 
             nav a {
                 font-size: 13px;
                 padding: 6px 12px;
+            }
+
+            #userInfo {
+                padding: 4px 12px 4px 4px;
             }
 
             .create-post-actions {
@@ -496,6 +790,10 @@
 
             .movie-card img {
                 height: 140px;
+            }
+
+            .login-modal {
+                padding: 30px 20px;
             }
         }
 
@@ -511,9 +809,11 @@
                 font-size: 13px;
                 padding: 10px 14px;
             }
+            #userInfo .user-detail .email {
+                display: none;
+            }
         }
 
-        /* Scrollbar styling */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -538,7 +838,18 @@
         <nav>
             <a href="#" class="active">🏠 Trang chủ</a>
             <a href="#">🎬 Xem phim</a>
-            <a href="#" class="login-btn">🔑 Đăng nhập</a>
+            
+            <!-- User Info -->
+            <div id="userInfo">
+                <img id="userAvatar" src="" alt="Avatar">
+                <div class="user-detail">
+                    <span class="name" id="userName">User</span>
+                    <span class="email" id="userEmail">email@example.com</span>
+                </div>
+            </div>
+            
+            <button class="login-btn" id="loginBtn" onclick="openLoginModal()">🔑 Đăng nhập</button>
+            <button class="logout-btn" id="logoutBtn" onclick="logoutUser()">🚪 Đăng xuất</button>
         </nav>
     </div>
 </header>
@@ -550,9 +861,9 @@
     <div class="newsfeed">
 
         <!-- CREATE POST -->
-        <div class="create-post">
+        <div class="create-post" id="createPostBox">
             <div class="create-post-header">
-                <div class="avatar">D</div>
+                <div class="avatar" id="postAvatar">D</div>
                 <input type="text" id="postInput" placeholder="Bạn đang nghĩ gì thế?">
             </div>
             <div class="create-post-actions">
@@ -580,10 +891,33 @@
     </div>
 </div>
 
-<!-- ===== MODAL ===== -->
-<div class="modal" id="movieModal">
-    <div class="modal-content">
-        <span class="modal-close" id="closeModal">&times;</span>
+<!-- ===== LOGIN MODAL ===== -->
+<div class="modal-overlay" id="loginModal">
+    <div class="login-modal">
+        <button class="close-modal" onclick="closeLoginModal()">✕</button>
+        <div class="logo-large">🔐</div>
+        <h2>Đăng nhập DoraemonFanSub</h2>
+        <p>Đăng nhập để viết bài, bình luận và xem phim yêu thích</p>
+        
+        <button class="google-btn" onclick="loginWithGoogle()">
+            <svg width="24" height="24" viewBox="0 0 48 48">
+                <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
+                <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
+                <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
+                <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+            </svg>
+            Đăng nhập với Google
+        </button>
+        
+        <div class="divider">hoặc</div>
+        <p style="font-size:13px; color:#999;">Email: <strong>demo@example.com</strong><br>Mật khẩu: <strong>••••••••</strong></p>
+    </div>
+</div>
+
+<!-- ===== MOVIE MODAL ===== -->
+<div class="movie-modal" id="movieModal">
+    <div class="movie-modal-content">
+        <button class="movie-modal-close" id="closeModal">✕</button>
         <h2 id="modalTitle">Tên phim</h2>
         <span class="modal-genre" id="modalGenre">Thể loại</span>
         <p id="modalDesc">Mô tả phim</p>
@@ -591,6 +925,9 @@
     </div>
 </div>
 
+<!-- ============================================= -->
+<!-- ===== MAIN SCRIPT (Non-module) ===== -->
+<!-- ============================================= -->
 <script>
     // =============================================
     // DATA
@@ -703,6 +1040,9 @@
             return;
         }
 
+        // Check if user is logged in
+        // (Will be checked by Firebase auth state)
+
         const newPost = {
             id: postIdCounter++,
             user: 'DoraemonFanSub',
@@ -720,7 +1060,6 @@
         document.getElementById('fileName').textContent = 'Chưa có tệp nào được chọn';
         document.getElementById('fileInput').value = '';
 
-        // Hiệu ứng thông báo
         const btn = document.querySelector('.post-btn');
         btn.textContent = '✅ Đã đăng!';
         setTimeout(() => btn.textContent = '📤 Đăng bài', 1500);
@@ -775,49 +1114,52 @@
                     <span class="genre">${movie.genre}</span>
                 </div>
             `;
-            card.addEventListener('click', () => openModal(movie));
+            card.addEventListener('click', () => openMovieModal(movie));
             container.appendChild(card);
         });
     }
 
     // =============================================
-    // MODAL
+    // MOVIE MODAL
     // =============================================
 
-    const modal = document.getElementById('movieModal');
-    const closeBtn = document.getElementById('closeModal');
+    const movieModal = document.getElementById('movieModal');
+    const closeMovieBtn = document.getElementById('closeModal');
     const modalTitle = document.getElementById('modalTitle');
     const modalGenre = document.getElementById('modalGenre');
     const modalDesc = document.getElementById('modalDesc');
     const modalVideo = document.getElementById('modalVideo');
 
-    function openModal(movie) {
+    function openMovieModal(movie) {
         modalTitle.textContent = movie.title;
         modalGenre.textContent = '🎬 ' + movie.genre;
         modalDesc.textContent = movie.desc;
         modalVideo.src = movie.video;
         modalVideo.poster = movie.poster;
-        modal.classList.add('active');
+        movieModal.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
 
-    function closeModal() {
-        modal.classList.remove('active');
+    function closeMovieModal() {
+        movieModal.classList.remove('active');
         modalVideo.pause();
         modalVideo.currentTime = 0;
         document.body.style.overflow = 'auto';
     }
 
-    closeBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
+    closeMovieBtn.addEventListener('click', closeMovieModal);
+    movieModal.addEventListener('click', (e) => {
+        if (e.target === movieModal) closeMovieModal();
     });
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeModal();
+        if (e.key === 'Escape') {
+            closeMovieModal();
+            closeLoginModal();
+        }
     });
 
     // =============================================
-    // KEYBOARD SHORTCUT: Enter to post
+    // KEYBOARD SHORTCUT
     // =============================================
 
     document.getElementById('postInput').addEventListener('keydown', (e) => {
@@ -836,6 +1178,8 @@
 
     console.log('🎬 DoraemonFanSub đã sẵn sàng!');
     console.log('📰 Newsfeed và 🎥 Góc xem phim đã được tải.');
+    console.log('🔥 Firebase Auth đã được tích hợp!');
 </script>
+
 </body>
 </html>
