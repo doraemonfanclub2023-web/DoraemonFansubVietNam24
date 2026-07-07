@@ -20,7 +20,6 @@
     </script>
 
     <style>
-        /* Reset & common */
         * {
             margin: 0;
             padding: 0;
@@ -32,7 +31,6 @@
             color: #1a1a2e;
         }
 
-        /* Header */
         header {
             background: linear-gradient(135deg, #1a73e8, #0d47a1);
             padding: 12px 0;
@@ -146,12 +144,10 @@
             background: rgba(255, 255, 255, 0.25);
         }
 
-        /* Main */
         .main-content {
             padding: 16px 0 40px;
         }
 
-        /* Tabs */
         .tabs {
             display: flex;
             gap: 0;
@@ -181,7 +177,6 @@
             color: white;
         }
 
-        /* Create post */
         .create-post {
             background: white;
             border-radius: 16px;
@@ -265,7 +260,6 @@
             background: #1557b0;
         }
 
-        /* Upload preview */
         .upload-progress {
             display: none;
             margin: 8px 0;
@@ -322,7 +316,6 @@
             background: #e94560;
         }
 
-        /* Post card */
         .post-card {
             background: white;
             border-radius: 16px;
@@ -449,7 +442,6 @@
             color: #1a73e8;
         }
 
-        /* Comment */
         .comments-section {
             margin-top: 12px;
             padding-top: 12px;
@@ -522,7 +514,6 @@
             background: #1557b0;
         }
 
-        /* Empty state */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -544,7 +535,6 @@
             font-size: 15px;
         }
 
-        /* Colors */
         .color-1 {
             background: #e94560;
         }
@@ -570,7 +560,6 @@
             background: #1a73e8;
         }
 
-        /* Responsive */
         @media (max-width: 640px) {
             .container {
                 padding: 0 12px;
@@ -609,7 +598,6 @@
 </head>
 <body>
 
-    <!-- ===== HEADER ===== -->
     <header>
         <div class="container">
             <div class="header-content">
@@ -630,19 +618,15 @@
         </div>
     </header>
 
-    <!-- ===== MAIN ===== -->
     <main class="main-content">
         <div class="container">
 
-            <!-- Tabs -->
             <div class="tabs">
                 <button class="tab-btn active" data-tab="newsfeed" onclick="switchTab('newsfeed')">📰 Mới nhất</button>
                 <button class="tab-btn" data-tab="movies" onclick="switchTab('movies')">🎬 Phim</button>
             </div>
 
-            <!-- Newsfeed Tab -->
             <div id="tab-newsfeed">
-                <!-- Create Post -->
                 <div class="create-post" id="createPostBox">
                     <div class="create-post-top">
                         <div class="avatar">D</div>
@@ -667,11 +651,9 @@
                     </div>
                 </div>
 
-                <!-- Post List -->
                 <div id="postList"></div>
             </div>
 
-            <!-- Movies Tab -->
             <div id="tab-movies" style="display:none;">
                 <div id="movieList"></div>
             </div>
@@ -681,7 +663,7 @@
 
     <script>
         // ============================================================
-        // FIREBASE CONFIG
+        // FIREBASE
         // ============================================================
         const firebaseConfig = {
             apiKey: "AIzaSyBt3G9n5JYu3EsvqJR9IoW2vRAc_Es3-ws",
@@ -697,16 +679,15 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Admin email (chỉ định admin duy nhất)
         const ADMIN_EMAIL = 'tuankhaimoi12345@gmail.com';
 
         // ============================================================
-        // CLOUDINARY CONFIG
+        // CLOUDINARY
         // ============================================================
         const CLOUDINARY_CONFIG = {
             cloudName: 'gntkeeno',
             uploadPreset: 'doraemon_fansub_vn',
-            folder: 'doraemon_fansub_vn'
+            folder: 'doraemon_fansub_images'
         };
 
         let uploadedImageUrl = '';
@@ -728,7 +709,6 @@
         // ============================================================
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // Đã đăng nhập
                 authStatus.style.display = 'flex';
                 loginBtn.style.display = 'none';
                 logoutBtn.style.display = 'block';
@@ -739,18 +719,15 @@
                 createPostBox.style.pointerEvents = 'auto';
                 postInput.placeholder = `${user.displayName || 'Bạn'} đang nghĩ gì thế?`;
 
-                // Kiểm tra admin
                 if (user.email === ADMIN_EMAIL) {
                     dashboardLink.style.display = 'inline-block';
                 } else {
                     dashboardLink.style.display = 'none';
                 }
 
-                // Load dữ liệu
                 loadPosts();
                 loadMovies();
             } else {
-                // Chưa đăng nhập
                 authStatus.style.display = 'none';
                 loginBtn.style.display = 'block';
                 logoutBtn.style.display = 'none';
@@ -759,7 +736,6 @@
                 createPostBox.style.pointerEvents = 'none';
                 postInput.placeholder = '🔑 Vui lòng đăng nhập để viết bài';
 
-                // Vẫn load dữ liệu công khai
                 loadPosts();
                 loadMovies();
             }
@@ -790,12 +766,12 @@
             } else {
                 document.getElementById('tab-newsfeed').style.display = 'none';
                 document.getElementById('tab-movies').style.display = 'block';
-                loadMovies(); // reload khi chuyển tab
+                loadMovies();
             }
         }
 
         // ============================================================
-        // UPLOAD WIDGET (Cloudinary)
+        // UPLOAD
         // ============================================================
         function openUploadWidget() {
             const isLoggedIn = authStatus.style.display === 'flex';
@@ -857,7 +833,8 @@
                         document.getElementById('uploadProgress').style.display = 'block';
                         const progress = Math.round((result.info.bytesUploaded / result.info.totalBytes) * 100);
                         document.getElementById('progressFill').style.width = progress + '%';
-                        document.getElementById('uploadStatus').textContent = `📤 Đang tải lên Cloudinary... ${progress}%`;
+                        document.getElementById('uploadStatus').textContent =
+                            `📤 Đang tải lên Cloudinary... ${progress}%`;
                     }
                     if (result.event === 'close') {
                         document.getElementById('uploadProgress').style.display = 'none';
@@ -874,7 +851,7 @@
         }
 
         // ============================================================
-        // POSTS (Newsfeed)
+        // POSTS
         // ============================================================
         async function loadPosts() {
             const container = document.getElementById('postList');
@@ -949,7 +926,6 @@
             }
         }
 
-        // Tạo bài viết mới
         async function createPost() {
             const isLoggedIn = authStatus.style.display === 'flex';
             if (!isLoggedIn) {
@@ -990,7 +966,6 @@
             }
         }
 
-        // Like
         async function toggleLike(postId) {
             const doc = await db.collection('posts').doc(postId).get();
             if (!doc.exists) return;
@@ -1004,7 +979,6 @@
             loadPosts();
         }
 
-        // Comment toggle
         function toggleComments(postId) {
             const el = document.getElementById(`comments-${postId}`);
             if (el) {
@@ -1018,7 +992,6 @@
             }
         }
 
-        // Add comment
         async function addComment(postId) {
             const input = document.getElementById(`commentInput-${postId}`);
             const text = input.value.trim();
@@ -1040,7 +1013,6 @@
             loadPosts();
         }
 
-        // Share
         function sharePost(postId) {
             const post = document.getElementById(`post-${postId}`);
             if (!post) return;
@@ -1054,7 +1026,6 @@
             }
         }
 
-        // Post options (Sửa/Xóa - chỉ admin)
         async function showPostOptions(postId) {
             const user = auth.currentUser;
             if (!user || user.email !== ADMIN_EMAIL) {
@@ -1104,7 +1075,6 @@
                             <p style="font-size:13px;color:#666;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${m.desc || ''}</p>
                             <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:#999;">
                                 <span>👁️ ${m.views || 0}</span>
-                                <span>⏱️ ${m.time || ''}</span>
                             </div>
                         </div>
                     `;
@@ -1117,7 +1087,6 @@
             }
         }
 
-        // Modal xem phim
         function openMovieModal(videoUrl, title, desc) {
             const modal = document.createElement('div');
             modal.style.cssText = `
@@ -1138,7 +1107,6 @@
                 if (e.target === modal) modal.remove();
             });
             document.body.appendChild(modal);
-            // Tự động phát
             const video = modal.querySelector('video');
             if (video) video.play();
         }
