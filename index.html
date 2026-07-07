@@ -67,6 +67,9 @@
         };
     </script>
 
+    <!-- Cloudinary Upload Widget -->
+    <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+
     <style>
         * {
             margin: 0;
@@ -317,6 +320,32 @@
 
         .post-btn:hover {
             background: #1557b0;
+        }
+
+        .upload-progress {
+            display: none;
+            margin: 8px 0;
+            padding: 8px 12px;
+            background: #e8f0fe;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #1a73e8;
+        }
+
+        .upload-progress .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #d2e3fc;
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .upload-progress .progress-bar .fill {
+            height: 100%;
+            background: #1a73e8;
+            width: 0%;
+            transition: width 0.3s;
         }
 
         /* ===== POST CARD ===== */
@@ -662,11 +691,16 @@
                 <div class="avatar">D</div>
                 <input type="text" id="postInput" placeholder="Bạn đang nghĩ gì thế?">
             </div>
+            <div class="upload-progress" id="uploadProgress">
+                <span id="uploadStatus">📤 Đang tải ảnh lên Cloudinary...</span>
+                <div class="progress-bar">
+                    <div class="fill" id="progressFill"></div>
+                </div>
+            </div>
             <div class="create-post-bottom">
                 <div class="post-actions">
-                    <button onclick="document.getElementById('fileInput').click()">
+                    <button onclick="openUploadWidget()">
                         📎 Ảnh/Video
-                        <input type="file" id="fileInput" accept="image/*" style="display:none">
                     </button>
                     <button>😊 Cảm xúc</button>
                 </div>
@@ -681,6 +715,96 @@
 </main>
 
 <script>
+    // =============================================
+    // CLOUDINARY CONFIG
+    // =============================================
+    
+    const CLOUDINARY_CONFIG = {
+        cloudName: 'YOUR_CLOUD_NAME', // 👈 Thay bằng Cloud Name của bạn
+        uploadPreset: 'YOUR_UPLOAD_PRESET', // 👈 Thay bằng Upload Preset
+        folder: 'doraemon_fansub_vn'
+    };
+
+    let uploadedImageUrl = '';
+
+    // =============================================
+    // OPEN CLOUDINARY UPLOAD WIDGET
+    // =============================================
+
+    function openUploadWidget() {
+        // Kiểm tra đăng nhập
+        const isLoggedIn = document.getElementById('authStatus').style.display === 'flex';
+        if (!isLoggedIn) {
+            alert('🔑 Vui lòng đăng nhập để đăng ảnh!');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const widget = cloudinary.createUploadWidget(
+            {
+                cloudName: CLOUDINARY_CONFIG.cloudName,
+                uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
+                folder: CLOUDINARY_CONFIG.folder,
+                sources: ['local', 'url', 'camera', 'google_drive'],
+                multiple: false,
+                maxFileSize: 10000000, // 10MB
+                resourceType: 'auto',
+                clientAllowedFormats: ['image/*', 'video/*'],
+                styles: {
+                    palette: {
+                        window: '#FFFFFF',
+                        sourceBg: '#f0f2f5',
+                        windowBorder: '#e4e6eb',
+                        tabIcon: '#1a73e8',
+                        inactiveTabIcon: '#65676b',
+                        menuIcons: '#1a73e8',
+                        link: '#1a73e8',
+                        action: '#1a73e8',
+                        inProgress: '#1a73e8',
+                        complete: '#34a853',
+                        error: '#e94560',
+                        textDark: '#1a1a2e',
+                        textLight: '#65676b'
+                    }
+                }
+            },
+            (error, result) => {
+                if (error) {
+                    console.error('❌ Lỗi upload:', error);
+                    alert('Upload thất bại! Vui lòng thử lại.');
+                    document.getElementById('uploadProgress').style.display = 'none';
+                    return;
+                }
+
+                if (result.event === 'success') {
+                    console.log('✅ Upload thành công:', result.info);
+                    uploadedImageUrl = result.info.secure_url;
+                    
+                    // Hiển thị progress
+                    document.getElementById('uploadStatus').textContent = '✅ Đã tải lên Cloudinary thành công!';
+                    document.getElementById('progressFill').style.width = '100%';
+                    
+                    setTimeout(() => {
+                        document.getElementById('uploadProgress').style.display = 'none';
+                        document.getElementById('progressFill').style.width = '0%';
+                    }, 2000);
+                }
+
+                if (result.event === 'progress') {
+                    document.getElementById('uploadProgress').style.display = 'block';
+                    const progress = Math.round((result.info.bytesUploaded / result.info.totalBytes) * 100);
+                    document.getElementById('progressFill').style.width = progress + '%';
+                    document.getElementById('uploadStatus').textContent = `📤 Đang tải lên Cloudinary... ${progress}%`;
+                }
+
+                if (result.event === 'close') {
+                    document.getElementById('uploadProgress').style.display = 'none';
+                }
+            }
+        );
+        widget.open();
+    }
+
     // =============================================
     // DATA
     // =============================================
@@ -779,8 +903,17 @@
     function createPost() {
         const input = document.getElementById('postInput');
         const content = input.value.trim();
-        if (!content) {
-            alert('📝 Vui lòng nhập nội dung bài viết!');
+        
+        if (!content && !uploadedImageUrl) {
+            alert('📝 Vui lòng nhập nội dung hoặc chọn ảnh/video!');
+            return;
+        }
+
+        // Kiểm tra đăng nhập
+        const isLoggedIn = document.getElementById('authStatus').style.display === 'flex';
+        if (!isLoggedIn) {
+            alert('🔑 Vui lòng đăng nhập để đăng bài!');
+            window.location.href = 'login.html';
             return;
         }
 
@@ -789,8 +922,8 @@
             user: 'Doraemon Fansub VN',
             avatar: 'D',
             color: 'color-1',
-            content: content,
-            image: '',
+            content: content || '📸 Chia sẻ hình ảnh',
+            image: uploadedImageUrl || '',
             time: 'Vừa xong',
             likes: 0,
             liked: false,
@@ -801,6 +934,7 @@
         postsData.unshift(newPost);
         renderPosts();
         input.value = '';
+        uploadedImageUrl = '';
         
         const btn = document.querySelector('.post-btn');
         btn.textContent = '✅ Đã đăng!';
@@ -947,23 +1081,12 @@
     });
 
     // =============================================
-    // FILE UPLOAD
-    // =============================================
-
-    document.getElementById('fileInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            alert(`📸 Đã chọn ảnh: ${file.name}\n(Kích thước: ${(file.size/1024).toFixed(1)}KB)`);
-            this.value = '';
-        }
-    });
-
-    // =============================================
     // INIT
     // =============================================
 
     renderPosts();
     console.log('🎬 Doraemon Fansub Việt Nam đã sẵn sàng!');
+    console.log('☁️ Cloudinary đã được tích hợp!');
 </script>
 
 </body>
