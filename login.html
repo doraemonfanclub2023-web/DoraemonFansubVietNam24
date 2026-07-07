@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đăng nhập - Doraemon Fansub VN</title>
 
-    <!-- Firebase compat -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
     </script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
@@ -343,13 +342,11 @@
 <body>
 
     <div class="login-container">
-        <!-- Loading -->
         <div class="loading-overlay" id="loadingOverlay">
             <div class="spinner"></div>
             <p>⏳ Đang xử lý...</p>
         </div>
 
-        <!-- Logo -->
         <div class="logo">
             <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23ffeb3b'/%3E%3Ccircle cx='35' cy='40' r='8' fill='%231a1a2e'/%3E%3Ccircle cx='65' cy='40' r='8' fill='%231a1a2e'/%3E%3Cellipse cx='50' cy='60' rx='18' ry='12' fill='%231a1a2e'/%3E%3Ccircle cx='50' cy='55' r='6' fill='%23e94560'/%3E%3C/svg%3E" alt="Doraemon" />
             <h1>Doraemon <span>Fansub VN</span></h1>
@@ -363,7 +360,6 @@
         <div class="message error" id="errorMessage"></div>
         <div class="message success" id="successMessage"></div>
 
-        <!-- LOGIN -->
         <form id="loginForm" onsubmit="return false;">
             <div class="form-group">
                 <label>📧 Email</label>
@@ -380,7 +376,6 @@
             </div>
         </form>
 
-        <!-- REGISTER -->
         <form id="registerForm" onsubmit="return false;">
             <div class="form-group">
                 <label>📧 Email</label>
@@ -400,7 +395,6 @@
             </div>
         </form>
 
-        <!-- FORGOT -->
         <form id="forgotForm" onsubmit="return false;">
             <div class="form-group">
                 <label>📧 Email</label>
@@ -439,11 +433,9 @@
     </div>
 
     <script>
-        // Cập nhật domain hiển thị
         document.getElementById('domainInfo').textContent = window.location.hostname;
         document.getElementById('domainInfo2').textContent = window.location.hostname;
 
-        // Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyBt3G9n5JYu3EsvqJR9IoW2vRAc_Es3-ws",
             authDomain: "doraemon-fansub-vietnam.firebaseapp.com",
@@ -458,7 +450,6 @@
         const auth = firebase.auth();
         const provider = new firebase.auth.GoogleAuthProvider();
 
-        // DOM refs
         const loading = document.getElementById('loadingOverlay');
         const errorMsg = document.getElementById('errorMessage');
         const successMsg = document.getElementById('successMessage');
@@ -486,7 +477,7 @@
             successMsg.style.display = 'none';
         }
 
-        // ----- Login -----
+        // Login
         document.getElementById('loginBtn').addEventListener('click', function() {
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim();
@@ -525,7 +516,7 @@
                     hideLoading(); });
         });
 
-        // ----- Google -----
+        // Google
         document.getElementById('googleBtn').addEventListener('click', function() {
             showLoading();
             this.disabled = true;
@@ -556,7 +547,7 @@
                     hideLoading(); });
         });
 
-        // ----- Register -----
+        // Register
         document.getElementById('registerBtn').addEventListener('click', function() {
             const email = document.getElementById('registerEmail').value.trim();
             const password = document.getElementById('registerPassword').value.trim();
@@ -576,7 +567,15 @@
             showLoading();
             this.disabled = true;
             auth.createUserWithEmailAndPassword(email, password)
-                .then(() => {
+                .then((userCredential) => {
+                    // Lưu user vào Firestore
+                    const user = userCredential.user;
+                    db.collection('users').doc(user.uid).set({
+                        email: user.email,
+                        displayName: user.displayName || '',
+                        photoURL: user.photoURL || '',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }).catch(console.error);
                     showSuccess('✅ Đăng ký thành công! Đang chuyển hướng...');
                     setTimeout(() => window.location.href = 'index.html', 1500);
                 })
@@ -601,7 +600,7 @@
                     hideLoading(); });
         });
 
-        // ----- Forgot -----
+        // Forgot
         document.getElementById('forgotBtn').addEventListener('click', function() {
             const email = document.getElementById('forgotEmail').value.trim();
             if (!email) {
@@ -629,7 +628,7 @@
                     hideLoading(); });
         });
 
-        // ----- Toggle forms -----
+        // Toggle forms
         document.getElementById('showRegister').addEventListener('click', function(e) {
             e.preventDefault();
             document.getElementById('loginForm').style.display = 'none';
@@ -659,7 +658,7 @@
             clearMessages();
         });
 
-        // ----- Enter key -----
+        // Enter key
         document.getElementById('email').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') { e.preventDefault();
                 document.getElementById('password').focus(); }
@@ -685,13 +684,9 @@
                 document.getElementById('forgotBtn').click(); }
         });
 
-        // ----- Auth state -----
         auth.onAuthStateChanged(function(user) {
-            if (user) {
-                // Nếu đã đăng nhập, chuyển về index (chỉ khi đang ở login)
-                if (window.location.pathname.includes('login.html')) {
-                    window.location.href = 'index.html';
-                }
+            if (user && window.location.pathname.includes('login.html')) {
+                window.location.href = 'index.html';
             }
         });
 
