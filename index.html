@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DoraemonFanSub - Newsfeed & Xem phim</title>
+    <title>DoraemonFanSub - Đăng nhập</title>
     
-    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 
-        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyBt3G9n5JYu3EsvqJR9IoW2vRAc_Es3-ws",
             authDomain: "doraemon-fansub-vietnam.firebaseapp.com",
@@ -23,95 +21,126 @@
         };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const analytics = getAnalytics(app);
-        const provider = new GoogleAuthProvider();
+        let app, auth, analytics, provider;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            analytics = getAnalytics(app);
+            provider = new GoogleAuthProvider();
+            console.log('✅ Firebase initialized successfully!');
+        } catch (error) {
+            console.error('❌ Firebase initialization error:', error);
+            document.getElementById('errorMessage').textContent = 'Lỗi khởi tạo Firebase: ' + error.message;
+            document.getElementById('errorMessage').style.display = 'block';
+        }
 
         // DOM Elements
+        const statusDiv = document.getElementById('authStatus');
         const loginBtn = document.getElementById('loginBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         const userInfo = document.getElementById('userInfo');
         const userAvatar = document.getElementById('userAvatar');
         const userName = document.getElementById('userName');
         const userEmail = document.getElementById('userEmail');
-        const authButtons = document.getElementById('authButtons');
-        const postInput = document.getElementById('postInput');
-        const createPostBox = document.getElementById('createPostBox');
+        const errorMessage = document.getElementById('errorMessage');
+        const loadingDiv = document.getElementById('loading');
 
         // ============= AUTH STATE =============
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // User logged in
-                userInfo.style.display = 'flex';
-                loginBtn.style.display = 'none';
-                logoutBtn.style.display = 'block';
-                userAvatar.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + user.displayName;
-                userName.textContent = user.displayName || user.email;
-                userEmail.textContent = user.email;
+        if (auth) {
+            onAuthStateChanged(auth, (user) => {
+                loadingDiv.style.display = 'none';
                 
-                // Enable posting
-                postInput.placeholder = `${user.displayName || 'Bạn'} đang nghĩ gì thế?`;
-                createPostBox.style.opacity = '1';
-                createPostBox.style.pointerEvents = 'auto';
-                
-                console.log('✅ Đã đăng nhập:', user.displayName);
-            } else {
-                // User logged out
-                userInfo.style.display = 'none';
-                loginBtn.style.display = 'block';
-                logoutBtn.style.display = 'none';
-                postInput.placeholder = 'Vui lòng đăng nhập để viết bài';
-                createPostBox.style.opacity = '0.5';
-                createPostBox.style.pointerEvents = 'none';
-                
-                console.log('👤 Chưa đăng nhập');
-            }
-        });
+                if (user) {
+                    // Logged in
+                    userInfo.style.display = 'flex';
+                    loginBtn.style.display = 'none';
+                    logoutBtn.style.display = 'block';
+                    userAvatar.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + user.displayName;
+                    userName.textContent = user.displayName || user.email;
+                    userEmail.textContent = user.email;
+                    statusDiv.innerHTML = '✅ Đã đăng nhập thành công!';
+                    statusDiv.style.color = '#34a853';
+                    
+                    // Redirect to dashboard or home
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                } else {
+                    // Logged out
+                    userInfo.style.display = 'none';
+                    loginBtn.style.display = 'block';
+                    logoutBtn.style.display = 'none';
+                    statusDiv.innerHTML = '👤 Vui lòng đăng nhập';
+                    statusDiv.style.color = '#666';
+                }
+            });
+        }
 
         // ============= LOGIN =============
         window.loginWithGoogle = async function() {
+            if (!auth) {
+                alert('Firebase chưa được khởi tạo. Vui lòng kiểm tra lại!');
+                return;
+            }
+            
             try {
+                loadingDiv.style.display = 'block';
+                loginBtn.disabled = true;
+                
                 const result = await signInWithPopup(auth, provider);
                 console.log('✅ Đăng nhập thành công:', result.user.displayName);
-                // Đóng modal nếu đang mở
-                closeLoginModal();
+                
+                statusDiv.innerHTML = '✅ Đang chuyển hướng...';
+                statusDiv.style.color = '#34a853';
+                
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+                
             } catch (error) {
                 console.error('❌ Lỗi đăng nhập:', error);
-                alert('Đăng nhập thất bại: ' + error.message);
+                loadingDiv.style.display = 'none';
+                loginBtn.disabled = false;
+                
+                let errorMsg = error.message;
+                if (error.code === 'auth/unauthorized-domain') {
+                    errorMsg = '⚠️ Domain chưa được ủy quyền. Vui lòng thêm domain này vào Firebase Console.\n\n' +
+                              'Hướng dẫn:\n' +
+                              '1. Vào Firebase Console → Authentication → Settings\n' +
+                              '2. Thêm domain: ' + window.location.hostname + '\n' +
+                              '3. Lưu lại và thử lại.';
+                }
+                
+                alert('❌ Đăng nhập thất bại!\n\n' + errorMsg);
+                statusDiv.innerHTML = '❌ Lỗi: ' + error.code;
+                statusDiv.style.color = '#e94560';
+                errorMessage.textContent = errorMsg;
+                errorMessage.style.display = 'block';
             }
         };
 
         // ============= LOGOUT =============
         window.logoutUser = async function() {
+            if (!auth) return;
+            
             try {
                 await signOut(auth);
                 console.log('✅ Đã đăng xuất');
+                statusDiv.innerHTML = '👤 Đã đăng xuất';
+                statusDiv.style.color = '#666';
             } catch (error) {
                 console.error('❌ Lỗi đăng xuất:', error);
                 alert('Đăng xuất thất bại: ' + error.message);
             }
         };
 
-        // ============= LOGIN MODAL =============
-        window.openLoginModal = function() {
-            document.getElementById('loginModal').classList.add('active');
-        };
+        // ============= CHECK CURRENT DOMAIN =============
+        console.log('🌐 Current domain:', window.location.hostname);
+        console.log('📋 Firebase Auth Domain:', firebaseConfig.authDomain);
 
-        window.closeLoginModal = function() {
-            document.getElementById('loginModal').classList.remove('active');
-        };
-
-        // Close modal on click outside
-        document.getElementById('loginModal').addEventListener('click', function(e) {
-            if (e.target === this) closeLoginModal();
-        });
-
-        // ============= EXPOSE FUNCTIONS TO GLOBAL =============
-        window.auth = auth;
-        window.signInWithPopup = signInWithPopup;
-        window.GoogleAuthProvider = GoogleAuthProvider;
-        window.provider = provider;
+        // Show domain info
+        document.getElementById('domainInfo').textContent = window.location.hostname;
 
         console.log('🔥 Firebase Auth đã sẵn sàng!');
     </script>
@@ -125,466 +154,22 @@
         }
 
         body {
-            background: #f0f2f5;
-            color: #1a1a2e;
-        }
-
-        /* ===== HEADER ===== */
-        header {
-            background: linear-gradient(135deg, #1a73e8, #0d47a1);
-            padding: 12px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .logo {
+            background: linear-gradient(135deg, #f0f2f5 0%, #e4e6eb 100%);
+            min-height: 100vh;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 24px;
-            font-weight: 800;
-            color: white;
-            text-decoration: none;
-        }
-
-        .logo img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: white;
-            padding: 4px;
-        }
-
-        .logo span {
-            color: #ffeb3b;
-        }
-
-        nav {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        nav a {
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 15px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            transition: 0.3s;
-        }
-
-        nav a:hover {
-            background: rgba(255,255,255,0.15);
-            color: white;
-        }
-
-        nav a.active {
-            background: #ffeb3b;
-            color: #0d47a1;
-        }
-
-        /* ===== USER INFO ===== */
-        #userInfo {
-            display: none;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255,255,255,0.15);
-            padding: 6px 16px 6px 6px;
-            border-radius: 30px;
-        }
-
-        #userInfo img {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 2px solid #ffeb3b;
-        }
-
-        #userInfo .user-detail {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.2;
-        }
-
-        #userInfo .user-detail .name {
-            color: white;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        #userInfo .user-detail .email {
-            color: rgba(255,255,255,0.7);
-            font-size: 11px;
-        }
-
-        .login-btn {
-            background: #ffeb3b;
-            color: #0d47a1 !important;
-            padding: 8px 20px;
-            border-radius: 25px;
-            font-weight: 700;
-            cursor: pointer;
-            border: none;
-            font-size: 15px;
-            transition: 0.3s;
-        }
-
-        .login-btn:hover {
-            background: #fdd835;
-            transform: scale(1.05);
-        }
-
-        .logout-btn {
-            background: rgba(255,255,255,0.2);
-            color: white !important;
-            padding: 6px 16px;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.3);
-            font-size: 13px;
-            transition: 0.3s;
-            display: none;
-        }
-
-        .logout-btn:hover {
-            background: rgba(255,0,0,0.3);
-            border-color: #ff4444;
-        }
-
-        /* ===== MAIN LAYOUT ===== */
-        .main-content {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 25px;
-            margin: 25px 0;
-        }
-
-        /* ===== LEFT: NEWSFEED ===== */
-        .newsfeed {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* ===== CREATE POST ===== */
-        .create-post {
-            background: white;
-            border-radius: 16px;
+            justify-content: center;
             padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            transition: 0.3s;
         }
 
-        .create-post-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #1a73e8, #0d47a1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-
-        .create-post input {
-            flex: 1;
-            padding: 12px 18px;
-            border: none;
-            background: #f0f2f5;
-            border-radius: 25px;
-            font-size: 15px;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        .create-post input:focus {
-            background: #e4e6eb;
-        }
-
-        .create-post-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #e4e6eb;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .file-upload {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #65676b;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .file-upload input[type="file"] {
-            display: none;
-        }
-
-        .file-upload:hover {
-            color: #1a73e8;
-        }
-
-        .post-btn {
-            background: #1a73e8;
-            color: white;
-            border: none;
-            padding: 8px 28px;
-            border-radius: 25px;
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .post-btn:hover {
-            background: #1557b0;
-            transform: scale(1.02);
-        }
-
-        .file-name {
-            font-size: 13px;
-            color: #65676b;
-            font-style: italic;
-        }
-
-        /* ===== POST CARDS ===== */
-        .post-card {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            transition: 0.3s;
-        }
-
-        .post-card:hover {
-            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-        }
-
-        .post-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
-
-        .post-user {
-            font-weight: 700;
-            font-size: 16px;
-        }
-
-        .post-time {
-            font-size: 13px;
-            color: #65676b;
-        }
-
-        .post-content {
-            font-size: 15px;
-            line-height: 1.6;
-            margin: 8px 0 12px 0;
-        }
-
-        .post-image {
-            width: 100%;
-            border-radius: 12px;
-            margin: 10px 0;
-            max-height: 400px;
-            object-fit: cover;
-        }
-
-        .post-actions {
-            display: flex;
-            gap: 20px;
-            padding-top: 12px;
-            border-top: 1px solid #e4e6eb;
-            margin-top: 12px;
-        }
-
-        .post-actions button {
-            background: none;
-            border: none;
-            color: #65676b;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            padding: 6px 12px;
-            border-radius: 8px;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .post-actions button:hover {
-            background: #f0f2f5;
-            color: #1a73e8;
-        }
-
-        .post-actions .liked {
-            color: #1a73e8;
-        }
-
-        /* ===== RIGHT: MOVIE SECTION ===== */
-        .movie-section {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .movie-section .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1a1a2e;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .movie-section .section-title span {
-            background: linear-gradient(135deg, #1a73e8, #0d47a1);
-            color: white;
-            padding: 2px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-        }
-
-        .movie-card {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .movie-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-        }
-
-        .movie-card img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-        }
-
-        .movie-card .movie-info {
-            padding: 15px;
-        }
-
-        .movie-card .movie-info h4 {
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-
-        .movie-card .movie-info p {
-            font-size: 13px;
-            color: #65676b;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .movie-card .movie-info .genre {
-            display: inline-block;
-            background: #e8f0fe;
-            color: #1a73e8;
-            padding: 2px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 6px;
-        }
-
-        .movie-card .play-overlay {
-            position: relative;
-        }
-
-        .movie-card .play-overlay .play-icon {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(26, 115, 232, 0.85);
-            color: white;
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            opacity: 0;
-            transition: 0.3s;
-        }
-
-        .movie-card:hover .play-icon {
-            opacity: 1;
-        }
-
-        /* ===== LOGIN MODAL ===== */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .login-modal {
+        .login-container {
             background: white;
             border-radius: 24px;
-            padding: 40px;
-            max-width: 420px;
-            width: 90%;
-            text-align: center;
-            position: relative;
-            animation: slideUp 0.3s ease;
+            padding: 45px 40px;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            animation: slideUp 0.5s ease;
         }
 
         @keyframes slideUp {
@@ -598,47 +183,89 @@
             }
         }
 
-        .login-modal .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 28px;
-            cursor: pointer;
-            color: #999;
-            transition: 0.3s;
-            background: none;
-            border: none;
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
         }
 
-        .login-modal .close-modal:hover {
-            color: #1a1a2e;
-            transform: rotate(90deg);
-        }
-
-        .login-modal .logo-large {
-            font-size: 60px;
+        .logo img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #ffeb3b;
+            padding: 10px;
             margin-bottom: 10px;
         }
 
-        .login-modal h2 {
-            font-size: 24px;
+        .logo h1 {
+            font-size: 28px;
             color: #1a1a2e;
-            margin-bottom: 8px;
         }
 
-        .login-modal p {
-            color: #65676b;
-            margin-bottom: 25px;
+        .logo h1 span {
+            color: #1a73e8;
+        }
+
+        .logo p {
+            color: #666;
             font-size: 14px;
+            margin-top: 4px;
         }
 
-        .login-modal .google-btn {
+        .status-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid #e4e6eb;
+        }
+
+        #authStatus {
+            font-weight: 600;
+        }
+
+        .error-box {
+            background: #fce8e6;
+            border: 1px solid #e94560;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+            color: #e94560;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+
+        .domain-info {
+            background: #e8f0fe;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #1a73e8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .domain-info strong {
+            background: #1a73e8;
+            color: white;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .google-btn {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
             width: 100%;
-            padding: 14px;
+            padding: 16px;
             border: 2px solid #e4e6eb;
             border-radius: 30px;
             background: white;
@@ -649,536 +276,182 @@
             transition: 0.3s;
         }
 
-        .login-modal .google-btn:hover {
+        .google-btn:hover {
             background: #f0f2f5;
             border-color: #1a73e8;
             transform: scale(1.02);
         }
 
-        .login-modal .google-btn img {
+        .google-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .google-btn img {
             width: 24px;
             height: 24px;
         }
 
-        .login-modal .divider {
+        .divider {
             display: flex;
             align-items: center;
             gap: 15px;
-            margin: 20px 0;
+            margin: 25px 0;
             color: #999;
             font-size: 13px;
         }
 
-        .login-modal .divider::before,
-        .login-modal .divider::after {
+        .divider::before,
+        .divider::after {
             content: '';
             flex: 1;
             height: 1px;
             background: #e4e6eb;
         }
 
-        /* ===== MOVIE MODAL ===== */
-        .movie-modal {
+        .user-info {
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 1000;
-            justify-content: center;
             align-items: center;
-            backdrop-filter: blur(5px);
+            gap: 15px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 16px;
+            margin-top: 20px;
         }
 
-        .movie-modal.active {
-            display: flex;
+        .user-info img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #1a73e8;
         }
 
-        .movie-modal-content {
-            background: #1a1a2e;
-            border-radius: 20px;
-            max-width: 750px;
-            width: 92%;
-            padding: 30px;
-            position: relative;
-            max-height: 90vh;
-            overflow-y: auto;
+        .user-info .details {
+            flex: 1;
         }
 
-        .movie-modal-close {
-            position: absolute;
-            top: 12px;
-            right: 18px;
+        .user-info .details .name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #1a1a2e;
+        }
+
+        .user-info .details .email {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .btn-logout {
+            padding: 8px 20px;
+            background: #e94560;
             color: white;
-            font-size: 32px;
+            border: none;
+            border-radius: 20px;
+            font-weight: 600;
             cursor: pointer;
             transition: 0.3s;
-            background: rgba(255,255,255,0.1);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: none;
+            display: none;
         }
 
-        .movie-modal-close:hover {
-            background: #e94560;
-            transform: rotate(90deg);
+        .btn-logout:hover {
+            background: #c62828;
         }
 
-        .movie-modal video {
-            width: 100%;
-            border-radius: 12px;
-            margin: 15px 0;
-            background: #000;
-        }
-
-        .movie-modal h2 {
-            color: white;
-            margin-bottom: 8px;
-        }
-
-        .movie-modal .modal-genre {
-            color: #ffeb3b;
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 10px;
+            color: #1a73e8;
             font-weight: 600;
-            font-size: 14px;
         }
 
-        .movie-modal p {
-            color: #ccc;
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0% { content: ''; }
+            25% { content: '.'; }
+            50% { content: '..'; }
+            75% { content: '...'; }
+        }
+
+        .help-text {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            font-size: 13px;
+            color: #666;
             line-height: 1.6;
-            margin: 8px 0 12px 0;
         }
 
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .header-content {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-            }
-
-            nav {
-                justify-content: center;
-            }
-
-            nav a {
-                font-size: 13px;
-                padding: 6px 12px;
-            }
-
-            #userInfo {
-                padding: 4px 12px 4px 4px;
-            }
-
-            .create-post-actions {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .post-btn {
-                width: 100%;
-            }
-
-            .movie-card img {
-                height: 140px;
-            }
-
-            .login-modal {
-                padding: 30px 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .logo {
-                font-size: 18px;
-            }
-            .logo img {
-                width: 32px;
-                height: 32px;
-            }
-            .create-post input {
-                font-size: 13px;
-                padding: 10px 14px;
-            }
-            #userInfo .user-detail .email {
-                display: none;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f0f2f5;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1a73e8;
-            border-radius: 10px;
+        .help-text strong {
+            color: #1a1a2e;
         }
     </style>
 </head>
 <body>
 
-<!-- ===== HEADER ===== -->
-<header>
-    <div class="container header-content">
-        <a href="#" class="logo">
-            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23ffeb3b'/%3E%3Ccircle cx='35' cy='40' r='8' fill='%231a1a2e'/%3E%3Ccircle cx='65' cy='40' r='8' fill='%231a1a2e'/%3E%3Cellipse cx='50' cy='60' rx='18' ry='12' fill='%231a1a2e'/%3E%3Ccircle cx='50' cy='55' r='6' fill='%23e94560'/%3E%3C/svg%3E" alt="Doraemon">
-            Doraemon<span>FanSub</span>
-        </a>
-        <nav>
-            <a href="#" class="active">🏠 Trang chủ</a>
-            <a href="#">🎬 Xem phim</a>
-            
-            <!-- User Info -->
-            <div id="userInfo">
-                <img id="userAvatar" src="" alt="Avatar">
-                <div class="user-detail">
-                    <span class="name" id="userName">User</span>
-                    <span class="email" id="userEmail">email@example.com</span>
-                </div>
-            </div>
-            
-            <button class="login-btn" id="loginBtn" onclick="openLoginModal()">🔑 Đăng nhập</button>
-            <button class="logout-btn" id="logoutBtn" onclick="logoutUser()">🚪 Đăng xuất</button>
-        </nav>
+<div class="login-container">
+    <div class="logo">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23ffeb3b'/%3E%3Ccircle cx='35' cy='40' r='8' fill='%231a1a2e'/%3E%3Ccircle cx='65' cy='40' r='8' fill='%231a1a2e'/%3E%3Cellipse cx='50' cy='60' rx='18' ry='12' fill='%231a1a2e'/%3E%3Ccircle cx='50' cy='55' r='6' fill='%23e94560'/%3E%3C/svg%3E" alt="Doraemon">
+        <h1>Doraemon<span>FanSub</span></h1>
+        <p>Đăng nhập để tiếp tục</p>
     </div>
-</header>
 
-<!-- ===== MAIN ===== -->
-<div class="container main-content">
+    <div class="domain-info">
+        🌐 Domain hiện tại: <strong id="domainInfo">loading...</strong>
+    </div>
 
-    <!-- LEFT: NEWSFEED -->
-    <div class="newsfeed">
+    <div class="status-box">
+        <div id="authStatus">👤 Vui lòng đăng nhập</div>
+    </div>
 
-        <!-- CREATE POST -->
-        <div class="create-post" id="createPostBox">
-            <div class="create-post-header">
-                <div class="avatar" id="postAvatar">D</div>
-                <input type="text" id="postInput" placeholder="Bạn đang nghĩ gì thế?">
-            </div>
-            <div class="create-post-actions">
-                <div class="file-upload" onclick="document.getElementById('fileInput').click()">
-                    📎 Chọn tệp
-                    <input type="file" id="fileInput" accept="image/*">
-                    <span class="file-name" id="fileName">Chưa có tệp nào được chọn</span>
-                </div>
-                <button class="post-btn" onclick="createPost()">📤 Đăng bài</button>
-            </div>
+    <div class="error-box" id="errorMessage"></div>
+
+    <div id="loading" class="loading">⏳ Đang xử lý</div>
+
+    <button class="google-btn" id="loginBtn" onclick="loginWithGoogle()">
+        <svg width="24" height="24" viewBox="0 0 48 48">
+            <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
+            <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
+            <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
+            <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+        </svg>
+        Đăng nhập với Google
+    </button>
+
+    <button class="btn-logout" id="logoutBtn" onclick="logoutUser()">🚪 Đăng xuất</button>
+
+    <div class="user-info" id="userInfo">
+        <img id="userAvatar" src="" alt="Avatar">
+        <div class="details">
+            <div class="name" id="userName">User</div>
+            <div class="email" id="userEmail">email@example.com</div>
         </div>
-
-        <!-- POST LIST -->
-        <div id="postList"></div>
     </div>
 
-    <!-- RIGHT: MOVIE SECTION -->
-    <div class="movie-section">
-        <div class="section-title">
-            🎥 Góc xem phim
-            <span>Hot</span>
-        </div>
+    <div class="divider">Hướng dẫn</div>
 
-        <div id="movieList"></div>
-    </div>
-</div>
-
-<!-- ===== LOGIN MODAL ===== -->
-<div class="modal-overlay" id="loginModal">
-    <div class="login-modal">
-        <button class="close-modal" onclick="closeLoginModal()">✕</button>
-        <div class="logo-large">🔐</div>
-        <h2>Đăng nhập DoraemonFanSub</h2>
-        <p>Đăng nhập để viết bài, bình luận và xem phim yêu thích</p>
-        
-        <button class="google-btn" onclick="loginWithGoogle()">
-            <svg width="24" height="24" viewBox="0 0 48 48">
-                <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
-                <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
-                <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
-                <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
-            </svg>
-            Đăng nhập với Google
-        </button>
-        
-        <div class="divider">hoặc</div>
-        <p style="font-size:13px; color:#999;">Email: <strong>demo@example.com</strong><br>Mật khẩu: <strong>••••••••</strong></p>
+    <div class="help-text">
+        <strong>📌 Lỗi unauthorized-domain?</strong><br>
+        Thêm domain <strong id="domainInfo2">...</strong> vào Firebase Console:
+        <br><br>
+        1. Vào <strong>Firebase Console</strong> → Authentication → Settings<br>
+        2. Mục <strong>Authorized domains</strong> → Thêm domain<br>
+        3. Lưu và thử lại
+        <br><br>
+        <span style="font-size:12px;color:#999;">💡 Nếu đã thêm domain rồi, hãy đợi 5-10 phút để Firebase cập nhật.</span>
     </div>
 </div>
 
-<!-- ===== MOVIE MODAL ===== -->
-<div class="movie-modal" id="movieModal">
-    <div class="movie-modal-content">
-        <button class="movie-modal-close" id="closeModal">✕</button>
-        <h2 id="modalTitle">Tên phim</h2>
-        <span class="modal-genre" id="modalGenre">Thể loại</span>
-        <p id="modalDesc">Mô tả phim</p>
-        <video controls id="modalVideo" poster=""></video>
-    </div>
-</div>
-
-<!-- ============================================= -->
-<!-- ===== MAIN SCRIPT (Non-module) ===== -->
-<!-- ============================================= -->
 <script>
-    // =============================================
-    // DATA
-    // =============================================
-
-    const postsData = [
-        {
-            id: 1,
-            user: 'DoraemonFanSub',
-            avatar: 'D',
-            content: '🔥 Chào mừng các bạn đến với DoraemonFanSub! Nơi chia sẻ những bộ phim hay nhất và tin tức mới nhất về Doraemon.',
-            image: 'https://picsum.photos/seed/doraemon1/600/300',
-            time: '2 phút trước',
-            likes: 12,
-            liked: false
-        },
-        {
-            id: 2,
-            user: 'Nobita',
-            avatar: 'N',
-            content: '📢 Sắp tới mình sẽ ra mắt phim mới "Doraemon: Nobita và cuộc phiêu lưu trên mặt trăng"! Các bạn nhớ đón xem nhé 🚀',
-            image: 'https://picsum.photos/seed/moon/600/300',
-            time: '15 phút trước',
-            likes: 8,
-            liked: false
-        },
-        {
-            id: 3,
-            user: 'Shizuka',
-            avatar: 'S',
-            content: '🌸 Hôm nay mình học được cách làm bánh từ bà ngoại, ai muốn ăn thử không? 🍰',
-            image: 'https://picsum.photos/seed/cake/600/300',
-            time: '1 giờ trước',
-            likes: 5,
-            liked: false
-        }
-    ];
-
-    const moviesData = [
-        {
-            id: 1,
-            title: 'Doraemon: Nobita và đảo giấu vàng',
-            desc: 'Nobita và các bạn cùng Doraemon lên đường tìm kiếm hòn đảo bí ẩn chứa kho báu khổng lồ.',
-            video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-            poster: 'https://picsum.photos/seed/doraemon2/400/250',
-            genre: 'Phiêu lưu, Hài hước'
-        },
-        {
-            id: 2,
-            title: 'Doraemon: Nobita và vương quốc robot',
-            desc: 'Cuộc phiêu lưu mới đưa Nobita đến với thế giới robot đầy màu sắc và những bí mật chưa được khám phá.',
-            video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-            poster: 'https://picsum.photos/seed/robot/400/250',
-            genre: 'Khoa học viễn tưởng'
-        },
-        {
-            id: 3,
-            title: 'Doraemon: Nobita và đàn chim hoang dã',
-            desc: 'Nobita gặp một chú chim nhỏ và cùng Doraemon bảo vệ đàn chim khỏi nguy hiểm.',
-            video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-            poster: 'https://picsum.photos/seed/bird/400/250',
-            genre: 'Tình cảm, Phiêu lưu'
-        }
-    ];
-
-    let postIdCounter = postsData.length + 1;
-
-    // =============================================
-    // RENDER POSTS
-    // =============================================
-
-    function renderPosts() {
-        const container = document.getElementById('postList');
-        container.innerHTML = '';
-
-        postsData.forEach(post => {
-            const card = document.createElement('div');
-            card.className = 'post-card';
-            card.innerHTML = `
-                <div class="post-header">
-                    <div class="avatar">${post.avatar}</div>
-                    <div>
-                        <div class="post-user">${post.user}</div>
-                        <div class="post-time">${post.time}</div>
-                    </div>
-                </div>
-                <div class="post-content">${post.content}</div>
-                ${post.image ? `<img src="${post.image}" alt="Post image" class="post-image">` : ''}
-                <div class="post-actions">
-                    <button onclick="toggleLike(${post.id})" class="${post.liked ? 'liked' : ''}">
-                        ${post.liked ? '❤️' : '🤍'} <span id="likeCount${post.id}">${post.likes}</span>
-                    </button>
-                    <button onclick="alert('💬 Chức năng bình luận đang phát triển!')">💬 Bình luận</button>
-                    <button onclick="alert('📤 Đã chia sẻ!')">📤 Chia sẻ</button>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-    }
-
-    // =============================================
-    // CREATE POST
-    // =============================================
-
-    function createPost() {
-        const input = document.getElementById('postInput');
-        const content = input.value.trim();
-        if (!content) {
-            alert('📝 Vui lòng nhập nội dung bài viết!');
-            return;
-        }
-
-        // Check if user is logged in
-        // (Will be checked by Firebase auth state)
-
-        const newPost = {
-            id: postIdCounter++,
-            user: 'DoraemonFanSub',
-            avatar: 'D',
-            content: content,
-            image: '',
-            time: 'Vừa xong',
-            likes: 0,
-            liked: false
-        };
-
-        postsData.unshift(newPost);
-        renderPosts();
-        input.value = '';
-        document.getElementById('fileName').textContent = 'Chưa có tệp nào được chọn';
-        document.getElementById('fileInput').value = '';
-
-        const btn = document.querySelector('.post-btn');
-        btn.textContent = '✅ Đã đăng!';
-        setTimeout(() => btn.textContent = '📤 Đăng bài', 1500);
-    }
-
-    // =============================================
-    // LIKE
-    // =============================================
-
-    function toggleLike(postId) {
-        const post = postsData.find(p => p.id === postId);
-        if (post) {
-            post.liked = !post.liked;
-            post.likes += post.liked ? 1 : -1;
-            renderPosts();
-        }
-    }
-
-    // =============================================
-    // FILE UPLOAD
-    // =============================================
-
-    document.getElementById('fileInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        const label = document.getElementById('fileName');
-        if (file) {
-            label.textContent = `📎 ${file.name}`;
-        } else {
-            label.textContent = 'Chưa có tệp nào được chọn';
-        }
-    });
-
-    // =============================================
-    // RENDER MOVIES
-    // =============================================
-
-    function renderMovies() {
-        const container = document.getElementById('movieList');
-        container.innerHTML = '';
-
-        moviesData.forEach(movie => {
-            const card = document.createElement('div');
-            card.className = 'movie-card';
-            card.innerHTML = `
-                <div class="play-overlay">
-                    <img src="${movie.poster}" alt="${movie.title}" loading="lazy">
-                    <div class="play-icon">▶</div>
-                </div>
-                <div class="movie-info">
-                    <h4>${movie.title}</h4>
-                    <p>${movie.desc}</p>
-                    <span class="genre">${movie.genre}</span>
-                </div>
-            `;
-            card.addEventListener('click', () => openMovieModal(movie));
-            container.appendChild(card);
-        });
-    }
-
-    // =============================================
-    // MOVIE MODAL
-    // =============================================
-
-    const movieModal = document.getElementById('movieModal');
-    const closeMovieBtn = document.getElementById('closeModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalGenre = document.getElementById('modalGenre');
-    const modalDesc = document.getElementById('modalDesc');
-    const modalVideo = document.getElementById('modalVideo');
-
-    function openMovieModal(movie) {
-        modalTitle.textContent = movie.title;
-        modalGenre.textContent = '🎬 ' + movie.genre;
-        modalDesc.textContent = movie.desc;
-        modalVideo.src = movie.video;
-        modalVideo.poster = movie.poster;
-        movieModal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeMovieModal() {
-        movieModal.classList.remove('active');
-        modalVideo.pause();
-        modalVideo.currentTime = 0;
-        document.body.style.overflow = 'auto';
-    }
-
-    closeMovieBtn.addEventListener('click', closeMovieModal);
-    movieModal.addEventListener('click', (e) => {
-        if (e.target === movieModal) closeMovieModal();
-    });
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            closeMovieModal();
-            closeLoginModal();
-        }
-    });
-
-    // =============================================
-    // KEYBOARD SHORTCUT
-    // =============================================
-
-    document.getElementById('postInput').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            createPost();
-        }
-    });
-
-    // =============================================
-    // INIT
-    // =============================================
-
-    renderPosts();
-    renderMovies();
-
-    console.log('🎬 DoraemonFanSub đã sẵn sàng!');
-    console.log('📰 Newsfeed và 🎥 Góc xem phim đã được tải.');
-    console.log('🔥 Firebase Auth đã được tích hợp!');
+    // Update domain info
+    document.getElementById('domainInfo').textContent = window.location.hostname;
+    document.getElementById('domainInfo2').textContent = window.location.hostname;
 </script>
 
 </body>
