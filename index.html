@@ -129,47 +129,20 @@
         /* ===== TÍCH XANH ===== */
         .verified-badge {
             display: inline-block;
-            background: #1a73e8;
-            color: white;
+            background: #ffeb3b;
+            color: #0d47a1;
             font-size: 10px;
             font-weight: 700;
-            padding: 1px 6px;
+            padding: 1px 8px;
             border-radius: 10px;
             margin-left: 4px;
             vertical-align: middle;
-            line-height: 1.4;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .verified-badge.gold {
-            background: #ffeb3b;
-            color: #0d47a1;
-            border-color: #ffeb3b;
+            line-height: 1.5;
+            border: 1px solid #fdd835;
         }
 
         .verified-badge .check {
             margin-right: 2px;
-        }
-
-        .verified-icon {
-            display: inline-block;
-            background: #1a73e8;
-            color: white;
-            font-size: 12px;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 18px;
-            margin-left: 4px;
-            vertical-align: middle;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .verified-icon.gold {
-            background: #ffeb3b;
-            color: #0d47a1;
-            border-color: #ffeb3b;
         }
 
         .login-btn {
@@ -537,23 +510,6 @@
             vertical-align: middle;
         }
 
-        .post-header .info .name .verified-badge {
-            display: inline-block;
-            background: #1a73e8;
-            color: white;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 1px 6px;
-            border-radius: 10px;
-            vertical-align: middle;
-            line-height: 1.4;
-        }
-
-        .post-header .info .name .verified-badge.gold {
-            background: #ffeb3b;
-            color: #0d47a1;
-        }
-
         .post-header .info .time {
             font-size: 13px;
             color: #65676b;
@@ -710,23 +666,6 @@
             height: 16px;
             width: auto;
             border-radius: 50%;
-        }
-
-        .comment-item .comment-body .name .verified-badge {
-            display: inline-block;
-            background: #1a73e8;
-            color: white;
-            font-size: 9px;
-            font-weight: 700;
-            padding: 0px 5px;
-            border-radius: 8px;
-            vertical-align: middle;
-            line-height: 1.3;
-        }
-
-        .comment-item .comment-body .name .verified-badge.gold {
-            background: #ffeb3b;
-            color: #0d47a1;
         }
 
         .comment-item .comment-body .text {
@@ -1288,6 +1227,10 @@
                 font-size: 11px;
                 padding: 4px 10px;
             }
+            .verified-badge {
+                font-size: 8px;
+                padding: 0px 5px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1321,14 +1264,8 @@
                 max-height: 200px;
             }
             .verified-badge {
-                font-size: 8px;
+                font-size: 7px;
                 padding: 0px 4px;
-            }
-            .verified-icon {
-                width: 14px;
-                height: 14px;
-                font-size: 9px;
-                line-height: 14px;
             }
         }
     </style>
@@ -1348,7 +1285,7 @@
                         <a href="profile.html" id="profileLink">
                             <img id="userAvatar" src="" alt="Avatar">
                             <span class="user-name" id="userName">User</span>
-                            <span class="verified-badge gold" id="headerBadge" style="display:none;">
+                            <span class="verified-badge" id="headerBadge" style="display:none;">
                                 <span class="check">✓</span> Admin
                             </span>
                         </a>
@@ -1492,6 +1429,7 @@
         let isLoggedIn = false;
         let isAdmin = false;
         let currentUserEmail = '';
+        let adminEmails = new Set();
 
         // ============================================================
         // DOM REFS
@@ -1517,25 +1455,41 @@
         const uploadStatus = document.getElementById('uploadStatus');
 
         // ============================================================
-        // KIỂM TRA QUYỀN ADMIN
+        // LẤY DANH SÁCH ADMIN
         // ============================================================
-        async function isUserAdmin(email) {
-            if (!email) return false;
+        async function loadAdminList() {
             try {
-                const snapshot = await db.collection('admins')
-                    .where('email', '==', email)
-                    .get();
-                return !snapshot.empty;
+                const snapshot = await db.collection('admins').get();
+                adminEmails = new Set();
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.email) {
+                        adminEmails.add(data.email);
+                    }
+                });
+                // Thêm Super Admin
+                adminEmails.add(SUPER_ADMIN_EMAIL);
+                console.log('✅ Danh sách Admin:', adminEmails);
             } catch (e) {
-                console.error('Lỗi kiểm tra admin:', e);
-                return false;
+                console.error('Lỗi load admin list:', e);
             }
+        }
+
+        // ============================================================
+        // KIỂM TRA ADMIN
+        // ============================================================
+        function isUserAdmin(email) {
+            if (!email) return false;
+            return adminEmails.has(email);
         }
 
         // ============================================================
         // AUTH STATE
         // ============================================================
         auth.onAuthStateChanged(async (user) => {
+            // Load danh sách admin trước
+            await loadAdminList();
+
             if (user) {
                 isLoggedIn = true;
                 currentUserEmail = user.email;
@@ -1550,15 +1504,12 @@
                 postInput.placeholder = `${user.displayName || 'Bạn'} đang nghĩ gì thế?`;
 
                 // Kiểm tra quyền admin
-                const adminCheck = await isUserAdmin(user.email);
-                const isSuperAdmin = user.email === SUPER_ADMIN_EMAIL;
+                isAdmin = isUserAdmin(user.email);
 
-                if (adminCheck || isSuperAdmin) {
-                    isAdmin = true;
+                if (isAdmin) {
                     dashboardLink.style.display = 'inline-block';
                     headerBadge.style.display = 'inline-block';
                 } else {
-                    isAdmin = false;
                     dashboardLink.style.display = 'none';
                     headerBadge.style.display = 'none';
                 }
@@ -1613,7 +1564,7 @@
         }
 
         // ============================================================
-        // UPLOAD WIDGET (Cloudinary)
+        // UPLOAD WIDGET
         // ============================================================
         function openUploadWidget(type) {
             if (!isLoggedIn) {
@@ -1750,6 +1701,7 @@
                     showComments: false,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     userId: user.uid,
+                    userEmail: user.email,
                     isAdmin: isAdmin
                 };
 
@@ -1816,8 +1768,8 @@
                 const leftPosts = posts.filter((_, index) => index % 2 === 0);
                 const rightPosts = posts.filter((_, index) => index % 2 === 1);
 
-                postList.innerHTML = renderPostCards(leftPosts);
-                postListRight.innerHTML = rightPosts.length > 0 ? renderPostCards(rightPosts) :
+                postList.innerHTML = await renderPostCards(leftPosts);
+                postListRight.innerHTML = rightPosts.length > 0 ? await renderPostCards(rightPosts) :
                     `<div style="text-align:center;padding:40px;color:#999;font-size:15px;">✨ Đã xem hết bài viết</div>`;
 
             } catch (e) {
@@ -1836,19 +1788,18 @@
         }
 
         // ============================================================
-        // RENDER POST CARDS (Có tích xanh cho Admin)
+        // RENDER POST CARDS (Có tích xanh)
         // ============================================================
-        function renderPostCards(posts) {
+        async function renderPostCards(posts) {
             if (!posts || posts.length === 0) return '';
 
             let html = '';
-            posts.forEach(p => {
-                // Kiểm tra user có phải admin không để hiển thị tích xanh
-                const isUserAdmin = p.isAdmin === true;
+            for (const p of posts) {
+                // Kiểm tra admin từ email
+                const isPostAdmin = isUserAdmin(p.userEmail);
 
-                const commentsHtml = (p.comments || []).map(c => {
-                    // Kiểm tra comment có phải admin không
-                    const isCommentAdmin = c.isAdmin === true;
+                const commentsHtml = await Promise.all((p.comments || []).map(async (c) => {
+                    const isCommentAdmin = isUserAdmin(c.userEmail);
                     return `
                         <div class="comment-item">
                             <div class="avatar">
@@ -1857,7 +1808,7 @@
                             <div class="comment-body">
                                 <div class="name">
                                     ${c.user || 'Doraemon'}
-                                    ${isCommentAdmin ? `<span class="verified-badge gold">✓ Admin</span>` : ''}
+                                    ${isCommentAdmin ? `<span class="verified-badge">✓ Admin</span>` : ''}
                                     <img src="${LOGO_URL}" class="logo-small" alt="logo">
                                 </div>
                                 <div class="text">${c.text || ''}</div>
@@ -1865,7 +1816,8 @@
                             </div>
                         </div>
                     `;
-                }).join('');
+                }));
+                const commentsHtmlStr = commentsHtml.join('');
 
                 let fileHtml = '';
                 if (p.fileUrl) {
@@ -1889,7 +1841,7 @@
                             <div class="info">
                                 <div class="name">
                                     ${p.user || 'Doraemon'}
-                                    ${isUserAdmin ? `<span class="verified-badge gold">✓ Admin</span>` : ''}
+                                    ${isPostAdmin ? `<span class="verified-badge">✓ Admin</span>` : ''}
                                     <img src="${LOGO_URL}" class="logo-small" alt="logo">
                                     <span class="badge">●</span>
                                 </div>
@@ -1911,7 +1863,7 @@
                             <button onclick="sharePost('${p.id}')">📤 Chia sẻ</button>
                         </div>
                         <div class="comments-section ${p.showComments ? 'open' : ''}" id="comments-${p.id}">
-                            ${commentsHtml}
+                            ${commentsHtmlStr}
                             <div class="comment-input">
                                 <input type="text" id="commentInput-${p.id}" placeholder="Viết bình luận...">
                                 <button onclick="addComment('${p.id}')">Gửi</button>
@@ -1919,7 +1871,7 @@
                         </div>
                     </div>
                 `;
-            });
+            }
             return html;
         }
 
@@ -1965,17 +1917,19 @@
             if (!text) return;
 
             try {
+                const user = auth.currentUser;
                 const doc = await db.collection('posts').doc(postId).get();
                 if (!doc.exists) return;
                 const data = doc.data();
                 const comments = data.comments || [];
                 comments.push({
-                    user: 'Doraemon',
+                    user: user?.displayName || 'Doraemon',
                     avatar: LOGO_URL,
                     color: '1',
                     text: text,
                     time: 'Vừa xong',
-                    isAdmin: isAdmin // Thêm flag admin cho comment
+                    userEmail: user?.email || '',
+                    isAdmin: isAdmin
                 });
                 await db.collection('posts').doc(postId).update({ comments });
                 input.value = '';
@@ -2002,7 +1956,7 @@
         }
 
         // ============================================================
-        // POST OPTIONS (Chỉ Admin mới xóa được)
+        // POST OPTIONS
         // ============================================================
         async function showPostOptions(postId) {
             const user = auth.currentUser;
@@ -2011,11 +1965,7 @@
                 return;
             }
 
-            // Kiểm tra quyền admin
-            const adminCheck = await isUserAdmin(user.email);
-            const isSuperAdmin = user.email === SUPER_ADMIN_EMAIL;
-
-            if (!adminCheck && !isSuperAdmin) {
+            if (!isAdmin) {
                 alert('⚠️ Bạn không có quyền!');
                 return;
             }
@@ -2031,7 +1981,7 @@
         }
 
         // ============================================================
-        // MOVIES (giữ nguyên)
+        // MOVIES
         // ============================================================
         let allMovies = [];
         let currentCategory = 'all';
@@ -2286,8 +2236,8 @@
         // ============================================================
         console.log('🎬 Doraemon đã sẵn sàng!');
         console.log('👑 Super Admin:', SUPER_ADMIN_EMAIL);
-        console.log('📎 Đã thêm tính năng đính kèm ảnh/video!');
         console.log('✅ Đã thêm tích xanh cho Admin!');
+        console.log('📎 Đã thêm tính năng đính kèm ảnh/video!');
     </script>
 </body>
 </html>
