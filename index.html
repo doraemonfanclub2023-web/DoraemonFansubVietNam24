@@ -589,11 +589,79 @@
             font-size: 15px;
         }
 
-        /* Movie card */
+        /* ===== MOVIE SECTION (Có phân loại bên trái) ===== */
+        .movie-layout {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 16px;
+        }
+
+        /* Phân loại bên trái */
+        .movie-categories {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            height: fit-content;
+            position: sticky;
+            top: 80px;
+        }
+
+        .movie-categories .category-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f2f5;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .movie-categories .category-list {
+            list-style: none;
+        }
+
+        .movie-categories .category-list li {
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 13px;
+            font-weight: 500;
+            color: #65676b;
+            margin-bottom: 2px;
+        }
+
+        .movie-categories .category-list li:hover {
+            background: #f0f2f5;
+        }
+
+        .movie-categories .category-list li.active {
+            background: #1a73e8;
+            color: white;
+        }
+
+        .movie-categories .category-list li .count {
+            float: right;
+            font-size: 11px;
+            color: #999;
+            background: #f0f2f5;
+            padding: 0 8px;
+            border-radius: 12px;
+        }
+
+        .movie-categories .category-list li.active .count {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* Movie grid bên phải */
         .movie-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            gap: 14px;
         }
 
         .movie-card {
@@ -612,22 +680,26 @@
 
         .movie-card img {
             width: 100%;
-            height: 180px;
+            height: 160px;
             object-fit: cover;
         }
 
         .movie-card .movie-info {
-            padding: 12px 14px;
+            padding: 10px 12px;
         }
 
         .movie-card .movie-info h4 {
-            font-size: 15px;
-            margin-bottom: 4px;
+            font-size: 14px;
+            margin-bottom: 2px;
             color: #1a1a2e;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .movie-card .movie-info p {
-            font-size: 13px;
+            font-size: 12px;
             color: #666;
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -639,17 +711,17 @@
             display: inline-block;
             background: #e8f0fe;
             color: #1a73e8;
-            padding: 2px 12px;
+            padding: 1px 10px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         .movie-card .movie-info .views {
-            font-size: 12px;
+            font-size: 11px;
             color: #999;
-            margin-top: 4px;
+            margin-top: 3px;
         }
 
         .loading-spinner {
@@ -824,53 +896,63 @@
         }
 
         /* Responsive */
-        @media (max-width: 640px) {
-            .container {
-                padding: 0 12px;
+        @media (max-width: 768px) {
+            .movie-layout {
+                grid-template-columns: 1fr;
             }
-            .logo {
-                font-size: 16px;
-            }
-            .logo img {
-                height: 30px;
-            }
-            .post-footer button {
-                padding: 8px 12px;
-                font-size: 13px;
-            }
-            .post-actions {
-                gap: 8px;
+            .movie-categories {
+                position: relative;
+                top: 0;
+                display: flex;
                 flex-wrap: wrap;
+                gap: 6px;
+                padding: 12px 14px;
             }
-            .post-actions button {
+            .movie-categories .category-title {
+                width: 100%;
+                margin-bottom: 6px;
                 font-size: 13px;
-                padding: 4px 8px;
+                padding-bottom: 6px;
             }
-            .create-post-top input {
-                font-size: 14px;
+            .movie-categories .category-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
             }
-            #authStatus .user-name {
+            .movie-categories .category-list li {
+                padding: 4px 12px;
+                font-size: 12px;
+                border-radius: 20px;
+            }
+            .movie-categories .category-list li .count {
                 display: none;
             }
             .movie-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
             }
-            .movie-modal-content {
-                padding: 20px;
-            }
-            .movie-modal-content .video-wrapper iframe {
-                height: 250px;
-            }
-            .movie-modal-close {
-                top: 8px;
-                right: 12px;
-                width: 34px;
-                height: 34px;
-                font-size: 22px;
+            .movie-card img {
+                height: 130px;
             }
         }
 
         @media (max-width: 480px) {
+            .movie-grid {
+                grid-template-columns: 1fr;
+            }
+            .movie-card img {
+                height: 180px;
+            }
+            .movie-categories .category-list li {
+                font-size: 11px;
+                padding: 3px 10px;
+            }
+            .movie-modal-content {
+                padding: 16px;
+            }
+            .movie-modal-content .video-wrapper iframe {
+                height: 200px;
+            }
             .dashboard-link {
                 font-size: 11px;
                 padding: 4px 10px;
@@ -941,10 +1023,29 @@
 
             <!-- Movies Tab -->
             <div id="tab-movies" style="display:none;">
-                <div id="movieList">
-                    <div class="loading-spinner">
-                        <div class="spinner"></div>
-                        <p>Đang tải phim...</p>
+                <div class="movie-layout">
+                    <!-- Phân loại bên trái -->
+                    <div class="movie-categories">
+                        <div class="category-title">📂 Phân loại</div>
+                        <ul class="category-list" id="categoryList">
+                            <li class="active" data-category="all">📺 Tất cả <span class="count" id="countAll">0</span></li>
+                            <li data-category="movie">🎬 Phim lẻ <span class="count" id="countMovie">0</span></li>
+                            <li data-category="seri">📺 Phim bộ <span class="count" id="countSeri">0</span></li>
+                            <li data-category="phim-bo">📺 Phim bộ <span class="count" id="countPhimBo">0</span></li>
+                            <li data-category="tv-show">📺 TV Show <span class="count" id="countTvShow">0</span></li>
+                            <li data-category="hoat-hinh">🎨 Hoạt hình <span class="count" id="countHoatHinh">0</span></li>
+                            <li data-category="hanh-dong">⚔️ Hành động <span class="count" id="countHanhDong">0</span></li>
+                            <li data-category="hai-huoc">😂 Hài hước <span class="count" id="countHaiHuoc">0</span></li>
+                            <li data-category="tinh-cam">💕 Tình cảm <span class="count" id="countTinhCam">0</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- Danh sách phim bên phải -->
+                    <div id="movieList">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <p>Đang tải phim...</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1303,8 +1404,11 @@
         }
 
         // ============================================================
-        // LOAD MOVIES
+        // LOAD MOVIES (Có phân loại)
         // ============================================================
+        let allMovies = [];
+        let currentCategory = 'all';
+
         async function loadMovies() {
             if (!movieList) return;
 
@@ -1321,28 +1425,36 @@
                             <p>Admin sẽ sớm cập nhật phim mới!</p>
                         </div>
                     `;
+                    updateCategoryCounts([]);
                     return;
                 }
 
-                let html = `<div class="movie-grid">`;
+                allMovies = [];
                 snapshot.forEach(doc => {
                     const m = doc.data();
-                    html += `
-                        <div class="movie-card" onclick="openMovieModal('${doc.id}')">
-                            <img src="${m.poster || 'https://via.placeholder.com/400x250/1a73e8/FFFFFF?text=Doraemon'}" 
-                                 alt="${m.title || 'Phim'}"
-                                 onerror="this.src='https://via.placeholder.com/400x250/1a73e8/FFFFFF?text=Doraemon'">
-                            <div class="movie-info">
-                                <h4>${m.title || 'Untitled'}</h4>
-                                <p>${m.desc || ''}</p>
-                                <span class="genre">${m.genre || 'Phim'}</span>
-                                <div class="views">👁️ ${m.views || 0} lượt xem</div>
-                            </div>
-                        </div>
-                    `;
+                    m.id = doc.id;
+                    // Chuẩn hóa category (nếu chưa có thì mặc định là 'movie')
+                    if (!m.category) {
+                        // Dùng genre làm category nếu có
+                        const genreMap = {
+                            'Phim lẻ': 'movie',
+                            'Phim bộ': 'seri',
+                            'TV Show': 'tv-show',
+                            'Hoạt hình': 'hoat-hinh',
+                            'Hành động': 'hanh-dong',
+                            'Hài hước': 'hai-huoc',
+                            'Tình cảm': 'tinh-cam',
+                            'Phiêu lưu': 'movie',
+                            'Khoa học viễn tưởng': 'movie'
+                        };
+                        m.category = genreMap[m.genre] || 'movie';
+                    }
+                    allMovies.push(m);
                 });
-                html += `</div>`;
-                movieList.innerHTML = html;
+
+                updateCategoryCounts(allMovies);
+                renderMoviesByCategory(currentCategory);
+
             } catch (e) {
                 console.error('Lỗi tải phim:', e);
                 movieList.innerHTML = `
@@ -1356,6 +1468,88 @@
                 `;
             }
         }
+
+        // ============================================================
+        // CẬP NHẬT SỐ LƯỢNG CHO TỪNG THỂ LOẠI
+        // ============================================================
+        function updateCategoryCounts(movies) {
+            const counts = {
+                all: movies.length,
+                movie: movies.filter(m => m.category === 'movie' || m.category === 'phim-le').length,
+                seri: movies.filter(m => m.category === 'seri').length,
+                'phim-bo': movies.filter(m => m.category === 'phim-bo' || m.category === 'seri').length,
+                'tv-show': movies.filter(m => m.category === 'tv-show').length,
+                'hoat-hinh': movies.filter(m => m.category === 'hoat-hinh').length,
+                'hanh-dong': movies.filter(m => m.category === 'hanh-dong').length,
+                'hai-huoc': movies.filter(m => m.category === 'hai-huoc').length,
+                'tinh-cam': movies.filter(m => m.category === 'tinh-cam').length
+            };
+
+            document.getElementById('countAll').textContent = counts.all;
+            document.getElementById('countMovie').textContent = counts.movie;
+            document.getElementById('countSeri').textContent = counts.seri;
+            document.getElementById('countPhimBo').textContent = counts['phim-bo'];
+            document.getElementById('countTvShow').textContent = counts['tv-show'];
+            document.getElementById('countHoatHinh').textContent = counts['hoat-hinh'];
+            document.getElementById('countHanhDong').textContent = counts['hanh-dong'];
+            document.getElementById('countHaiHuoc').textContent = counts['hai-huoc'];
+            document.getElementById('countTinhCam').textContent = counts['tinh-cam'];
+        }
+
+        // ============================================================
+        // HIỂN THỊ PHIM THEO THỂ LOẠI
+        // ============================================================
+        function renderMoviesByCategory(category) {
+            currentCategory = category;
+            const filtered = category === 'all' ?
+                allMovies :
+                allMovies.filter(m => m.category === category);
+
+            if (filtered.length === 0) {
+                movieList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🎬</div>
+                        <h3>Không có phim nào</h3>
+                        <p>Chưa có phim thuộc thể loại này</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `<div class="movie-grid">`;
+            filtered.forEach(m => {
+                html += `
+                    <div class="movie-card" onclick="openMovieModal('${m.id}')">
+                        <img src="${m.poster || 'https://via.placeholder.com/400x250/1a73e8/FFFFFF?text=Doraemon'}" 
+                             alt="${m.title || 'Phim'}"
+                             onerror="this.src='https://via.placeholder.com/400x250/1a73e8/FFFFFF?text=Doraemon'">
+                        <div class="movie-info">
+                            <h4>${m.title || 'Untitled'}</h4>
+                            <p>${m.desc || ''}</p>
+                            <span class="genre">${m.genre || 'Phim'}</span>
+                            <div class="views">👁️ ${m.views || 0} lượt xem</div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            movieList.innerHTML = html;
+        }
+
+        // ============================================================
+        // SỰ KIỆN CLICK VÀO THỂ LOẠI
+        // ============================================================
+        document.getElementById('categoryList').addEventListener('click', function(e) {
+            const li = e.target.closest('li');
+            if (!li) return;
+
+            // Bỏ active tất cả
+            this.querySelectorAll('li').forEach(item => item.classList.remove('active'));
+            li.classList.add('active');
+
+            const category = li.dataset.category;
+            renderMoviesByCategory(category);
+        });
 
         // ============================================================
         // OPEN MOVIE MODAL
@@ -1387,7 +1581,7 @@
                         <div class="video-wrapper">
                             <video controls>
                                 <source src="${m.video}">
-                                Trình duyệt không hỗ trợ video
+                                Trình duyệt không hỗ trỗ video
                             </video>
                         </div>
                     `;
