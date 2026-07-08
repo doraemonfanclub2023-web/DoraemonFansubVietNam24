@@ -15,7 +15,6 @@
     </script>
 
     <style>
-        /* ===== GIỮ NGUYÊN CSS CŨ ===== */
         * {
             margin: 0;
             padding: 0;
@@ -911,6 +910,7 @@
             <li data-tab="posts"><span class="icon">📝</span> Quản lý bài viết</li>
             <li data-tab="movies"><span class="icon">🎬</span> Quản lý phim</li>
             <li data-tab="users"><span class="icon">👥</span> Người dùng</li>
+            <li data-tab="banned"><span class="icon">🚫</span> Quản lý cấm</li>
             <li data-tab="settings"><span class="icon">⚙️</span> Cài đặt</li>
         </ul>
 
@@ -951,6 +951,7 @@
                 <button class="tab-btn" data-tab="posts">📝 Bài viết</button>
                 <button class="tab-btn" data-tab="movies">🎬 Phim</button>
                 <button class="tab-btn" data-tab="users">👥 Người dùng</button>
+                <button class="tab-btn" data-tab="banned">🚫 Quản lý cấm</button>
                 <button class="tab-btn" data-tab="settings">⚙️ Cài đặt</button>
             </div>
 
@@ -962,7 +963,7 @@
                         <span style="background:#e8f0fe;padding:4px 12px;border-radius:6px;font-size:12px;">✅ Quản lý bài viết</span>
                         <span style="background:#e8f0fe;padding:4px 12px;border-radius:6px;font-size:12px;">✅ Quản lý phim</span>
                         <span style="background:#e8f0fe;padding:4px 12px;border-radius:6px;font-size:12px;">✅ Quản lý người dùng</span>
-                        <span style="background:#fce8e6;padding:4px 12px;border-radius:6px;font-size:12px;color:#e94560;">🗑️ Xóa tài khoản ảo</span>
+                        <span style="background:#fce8e6;padding:4px 12px;border-radius:6px;font-size:12px;color:#e94560;">🚫 Quản lý cấm</span>
                     </div>
                 </div>
             </div>
@@ -1022,6 +1023,34 @@
                         </thead>
                         <tbody id="usersTableBody">
                             <tr><td colspan="7" class="empty-state"><div class="icon">⏳</div>Đang tải...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== TAB BANNED (QUẢN LÝ CẤM) ===== -->
+            <div class="tab-content" id="tab-banned">
+                <div class="table-toolbar">
+                    <span class="title">🚫 Danh sách tài khoản bị cấm</span>
+                    <div class="right">
+                        <span style="font-size:12px;color:#999;" id="bannedCount">0 người bị cấm</span>
+                        <button class="btn-primary" onclick="loadBannedUsers()" style="font-size:11px;padding:4px 12px;">🔄 Làm mới</button>
+                    </div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Email</th>
+                                <th>UID</th>
+                                <th>Ngày bị cấm</th>
+                                <th>Lý do</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bannedTableBody">
+                            <tr><td colspan="6" class="empty-state"><div class="icon">⏳</div>Đang tải...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1432,7 +1461,7 @@
         }
 
         // ============================================================
-        // USERS - CÓ THÊM BANNED USERS
+        // USERS
         // ============================================================
         async function loadUsers() {
             const tbody = document.getElementById('usersTableBody');
@@ -1462,7 +1491,7 @@
                     adminEmails.add(doc.data().email);
                 });
 
-                // Lấy danh sách banned users
+                // Lấy danh sách banned
                 const bannedSnapshot = await db.collection('banned_users').get();
                 const bannedEmails = new Set();
                 bannedSnapshot.forEach(doc => {
@@ -1502,7 +1531,7 @@
                             `<span style="background:#ffeb3b;color:#1a1a2e;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;">👑 Super Admin</span>`;
                     } else if (isBanned) {
                         roleHtml =
-                            `<span style="background:#fce8e6;color:#e94560;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;">🚫 Đã xóa</span>`;
+                            `<span style="background:#fce8e6;color:#e94560;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;">🚫 Đã cấm</span>`;
                     } else if (isAdmin) {
                         roleHtml =
                             `<span style="background:#ffeb3b;color:#1a1a2e;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;">👑 Admin</span>`;
@@ -1511,7 +1540,6 @@
                             `<span style="background:#f0f2f5;color:#666;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;">👤 User</span>`;
                     }
 
-                    // Nút xóa tài khoản
                     let deleteBtn = '';
                     if (!isSuperAdmin) {
                         if (isBanned) {
@@ -1519,25 +1547,23 @@
                                 `<button class="btn-success btn-sm" onclick="unbanUser('${data.email}')">✅ Bỏ cấm</button>`;
                         } else {
                             deleteBtn =
-                                `<button class="btn-danger btn-sm" onclick="banUser('${uid}','${data.email}')">🗑️ Xóa TK</button>`;
+                                `<button class="btn-danger btn-sm" onclick="banUser('${uid}','${data.email}')">🗑️ Cấm</button>`;
                         }
                     } else {
-                        deleteBtn = `<span style="color:#999;font-size:11px;">🔒 Không thể xóa</span>`;
+                        deleteBtn = `<span style="color:#999;font-size:11px;">🔒 Không thể cấm</span>`;
                     }
 
-                    // Nút thêm/xóa admin
                     let adminAction = '';
-                    if (!isSuperAdmin) {
-                        if (!isAdmin && !isBanned) {
+                    if (!isSuperAdmin && !isBanned) {
+                        if (!isAdmin) {
                             adminAction =
                                 `<button class="btn-success btn-sm" onclick="addAdmin('${data.email}')">👑 Thêm Admin</button>`;
-                        } else if (isAdmin) {
+                        } else {
                             adminAction =
                                 `<button class="btn-danger btn-sm" onclick="removeAdmin('${doc.id}','${data.email}')">🗑️ Xóa Admin</button>`;
                         }
-                    } else {
-                        adminAction =
-                            `<span style="color:#999;font-size:11px;">👑 Chủ sở hữu</span>`;
+                    } else if (isSuperAdmin) {
+                        adminAction = `<span style="color:#999;font-size:11px;">👑 Chủ sở hữu</span>`;
                     }
 
                     html += `
@@ -1571,6 +1597,80 @@
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="7" class="empty-state">
+                            <div class="icon">❌</div>
+                            Lỗi tải dữ liệu: ${e.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // ============================================================
+        // BANNED USERS - QUẢN LÝ CẤM
+        // ============================================================
+        async function loadBannedUsers() {
+            const tbody = document.getElementById('bannedTableBody');
+            try {
+                const snapshot = await db.collection('banned_users')
+                    .orderBy('bannedAt', 'desc')
+                    .get();
+
+                if (snapshot.empty) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                <div class="icon">🎉</div>
+                                Chưa có ai bị cấm
+                            </td>
+                        </tr>
+                    `;
+                    document.getElementById('bannedCount').textContent = '0 người bị cấm';
+                    return;
+                }
+
+                let html = '';
+                let count = 0;
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const email = doc.id;
+                    count++;
+
+                    let bannedDate = 'Chưa có';
+                    if (data.bannedAt) {
+                        if (data.bannedAt.seconds) {
+                            bannedDate = new Date(data.bannedAt.seconds * 1000).toLocaleDateString('vi-VN', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+                        }
+                    }
+
+                    html += `
+                        <tr>
+                            <td>${count}</td>
+                            <td style="font-size:12px;color:#e94560;font-weight:600;">${email}</td>
+                            <td style="font-size:12px;color:#666;">${data.uid || 'N/A'}</td>
+                            <td style="font-size:12px;color:#666;">${bannedDate}</td>
+                            <td style="font-size:12px;color:#666;">${data.reason || 'Tài khoản ảo'}</td>
+                            <td>
+                                <button class="btn-success btn-sm" onclick="unbanUser('${email}')">✅ Bỏ cấm</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tbody.innerHTML = html;
+                document.getElementById('bannedCount').textContent = count + ' người bị cấm';
+
+            } catch (e) {
+                console.error('Lỗi tải banned users:', e);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
                             <div class="icon">❌</div>
                             Lỗi tải dữ liệu: ${e.message}
                         </td>
@@ -1647,22 +1747,20 @@
         };
 
         // ============================================================
-        // BAN USER - XÓA TÀI KHOẢN VÀ THÊM VÀO BANNED_LIST
+        // BAN USER - CẤM TÀI KHOẢN
         // ============================================================
         window.banUser = async function(uid, email) {
             if (email === ADMIN_EMAIL) {
-                showToast('⚠️ Không thể xóa Super Admin!', true);
+                showToast('⚠️ Không thể cấm Super Admin!', true);
                 return;
             }
 
-            if (!confirm(`⚠️ Bạn có chắc muốn XÓA VĨNH VIỄN tài khoản ${email}?\n\nHành động này KHÔNG THỂ HOÀN TÁC!`)) return;
-
-            if (!confirm(`Lần cuối: Xóa tài khoản ${email}?`)) return;
+            if (!confirm(`⚠️ Bạn có chắc muốn CẤM tài khoản ${email}?\n\nNgười dùng này sẽ không thể đăng nhập!`)) return;
 
             try {
-                showToast('⏳ Đang xóa tài khoản...');
+                showToast('⏳ Đang cấm tài khoản...');
 
-                // 1. Thêm vào danh sách banned
+                // 1. Thêm vào banned_users
                 await db.collection('banned_users').doc(email).set({
                     email: email,
                     uid: uid,
@@ -1692,12 +1790,13 @@
                 // 4. Xóa user khỏi collection users
                 await db.collection('users').doc(uid).delete();
 
-                showToast(`✅ Đã xóa tài khoản ${email} thành công!`);
+                showToast(`✅ Đã cấm tài khoản ${email} thành công!`);
                 loadUsers();
+                loadBannedUsers();
 
             } catch (e) {
-                console.error('Lỗi xóa tài khoản:', e);
-                showToast('❌ Lỗi xóa tài khoản: ' + e.message, true);
+                console.error('Lỗi cấm tài khoản:', e);
+                showToast('❌ Lỗi cấm tài khoản: ' + e.message, true);
             }
         };
 
@@ -1711,6 +1810,7 @@
                 await db.collection('banned_users').doc(email).delete();
                 showToast(`✅ Đã bỏ cấm cho ${email}`);
                 loadUsers();
+                loadBannedUsers();
             } catch (e) {
                 console.error('Lỗi bỏ cấm:', e);
                 showToast('❌ Lỗi bỏ cấm: ' + e.message, true);
@@ -1765,7 +1865,7 @@
             const settingsName = document.getElementById('settingsName');
             if (settingsName) settingsName.value = user.displayName || '';
 
-            await Promise.all([loadPosts(), loadMovies(), loadUsers()]);
+            await Promise.all([loadPosts(), loadMovies(), loadUsers(), loadBannedUsers()]);
             updateStats();
         });
 
@@ -1788,6 +1888,7 @@
             'posts': '📝 Quản lý bài viết',
             'movies': '🎬 Quản lý phim',
             'users': '👥 Người dùng',
+            'banned': '🚫 Quản lý cấm',
             'settings': '⚙️ Cài đặt'
         };
 
@@ -1835,8 +1936,8 @@
 
         console.log('🔥 Dashboard admin đã sẵn sàng!');
         console.log('👑 Super Admin:', ADMIN_EMAIL);
-        console.log('🗑️ Đã thêm chức năng xóa tài khoản + banned list!');
-        console.log('🚫 Tài khoản bị xóa sẽ được thêm vào banned_users');
+        console.log('🚫 Đã thêm tab Quản lý cấm!');
+        console.log('📋 Xem danh sách người dùng bị cấm và bỏ cấm dễ dàng.');
     </script>
 </body>
 </html>
