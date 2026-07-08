@@ -142,21 +142,6 @@
             border-color: #ff4444;
         }
 
-        .back-link {
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            padding: 6px 14px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            font-size: 13px;
-            transition: 0.3s;
-        }
-
-        .back-link:hover {
-            background: rgba(255, 255, 255, 0.25);
-        }
-
         .profile-container {
             max-width: 680px;
             margin: 20px auto;
@@ -461,7 +446,6 @@
                         <img id="userAvatar" src="" alt="Avatar">
                         <span class="user-name" id="userName">User</span>
                     </div>
-                    <a href="index.html" class="back-link">🏠 Trang chủ</a>
                     <a href="login.html" class="login-btn" id="loginBtn">🔑 Đăng nhập</a>
                     <button class="logout-btn" id="logoutBtn" onclick="logoutUser()">🚪 Đăng xuất</button>
                 </div>
@@ -750,7 +734,7 @@
         });
 
         // ============================================================
-        // UPLOAD AVATAR (ĐÃ SỬA - BỎ THAM SỐ GÂY LỖI)
+        // UPLOAD AVATAR
         // ============================================================
         function openAvatarUpload() {
             if (!currentUser) {
@@ -763,7 +747,6 @@
                 return;
             }
 
-            // Cấu hình đơn giản - chỉ giữ các tham số cần thiết
             const widget = cloudinary.createUploadWidget({
                 cloudName: CLOUDINARY_CONFIG.cloudName,
                 uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
@@ -775,7 +758,6 @@
                 clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
                 cropping: true,
                 croppingAspectRatio: 1,
-                // KHÔNG DÙNG: use_filename, unique_filename
                 showAdvancedOptions: false,
                 styles: {
                     palette: {
@@ -864,6 +846,7 @@
 
         console.log('👤 Trang cá nhân đã sẵn sàng!');
         console.log('📷 Đã sửa lỗi Cloudinary - bỏ tham số use_filename');
+        console.log('🗑️ Đã xóa nút "Trang chủ" (đã có logo)');
     </script>
 </body>
 </html>
