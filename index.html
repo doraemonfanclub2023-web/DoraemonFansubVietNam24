@@ -61,11 +61,10 @@
         }
 
         .logo img {
-            width: 36px;
             height: 36px;
+            width: auto;
             border-radius: 50%;
-            background: white;
-            padding: 4px;
+            object-fit: cover;
         }
 
         .logo span {
@@ -214,14 +213,24 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
             background: linear-gradient(135deg, #1a73e8, #0d47a1);
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        .create-post-top .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .create-post-top .avatar .default-avatar {
             color: white;
             font-weight: 700;
             font-size: 18px;
-            flex-shrink: 0;
         }
 
         .create-post-top input {
@@ -313,13 +322,24 @@
             width: 44px;
             height: 44px;
             border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+        }
+
+        .post-header .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .post-header .avatar .default-avatar {
             color: white;
             font-weight: 700;
             font-size: 20px;
-            flex-shrink: 0;
         }
 
         .post-header .info {
@@ -330,6 +350,9 @@
             font-weight: 700;
             font-size: 15px;
             color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .post-header .info .name .badge {
@@ -339,8 +362,14 @@
             font-size: 10px;
             padding: 1px 8px;
             border-radius: 10px;
-            margin-left: 4px;
             font-weight: 600;
+        }
+
+        .post-header .info .name .logo-small {
+            height: 20px;
+            width: auto;
+            border-radius: 50%;
+            vertical-align: middle;
         }
 
         .post-header .info .time {
@@ -457,13 +486,24 @@
             width: 32px;
             height: 32px;
             border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+        }
+
+        .comment-item .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .comment-item .avatar .default-avatar {
             color: white;
             font-weight: 700;
             font-size: 14px;
-            flex-shrink: 0;
         }
 
         .comment-item .comment-body {
@@ -476,6 +516,15 @@
         .comment-item .comment-body .name {
             font-weight: 600;
             font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .comment-item .comment-body .name .logo-small {
+            height: 16px;
+            width: auto;
+            border-radius: 50%;
         }
 
         .comment-item .comment-body .text {
@@ -787,7 +836,6 @@
                 font-size: 16px;
             }
             .logo img {
-                width: 30px;
                 height: 30px;
             }
             .post-footer button {
@@ -841,8 +889,8 @@
         <div class="container">
             <div class="header-content">
                 <a href="#" class="logo">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23ffeb3b'/%3E%3Ccircle cx='35' cy='40' r='8' fill='%231a1a2e'/%3E%3Ccircle cx='65' cy='40' r='8' fill='%231a1a2e'/%3E%3Cellipse cx='50' cy='60' rx='18' ry='12' fill='%231a1a2e'/%3E%3Ccircle cx='50' cy='55' r='6' fill='%23e94560'/%3E%3C/svg%3E" alt="Doraemon">
-                    Doraemon Fansub <span>VN</span>
+                    <img src="https://i.ibb.co/9kJhtfp1/Doraemon-fansub.png" alt="Doraemon Fansub">
+                    <span>FanSub</span>
                 </a>
                 <div class="header-actions">
                     <div id="authStatus">
@@ -872,7 +920,9 @@
                 <!-- Create Post -->
                 <div class="create-post" id="createPostBox">
                     <div class="create-post-top">
-                        <div class="avatar">D</div>
+                        <div class="avatar">
+                            <img src="https://i.ibb.co/9kJhtfp1/Doraemon-fansub.png" alt="Logo">
+                        </div>
                         <input type="text" id="postInput" placeholder="Bạn đang nghĩ gì thế?">
                     </div>
                     <div class="create-post-bottom">
@@ -925,6 +975,7 @@
         const db = firebase.firestore();
 
         const ADMIN_EMAIL = 'tuankhaimoi12345@gmail.com';
+        const LOGO_URL = 'https://i.ibb.co/9kJhtfp1/Doraemon-fansub.png';
 
         // ============================================================
         // DOM REFS
@@ -1007,7 +1058,7 @@
         }
 
         // ============================================================
-        // CREATE POST (SỬA LỖI)
+        // CREATE POST
         // ============================================================
         async function createPost() {
             const isLoggedIn = authStatus.style.display === 'flex';
@@ -1023,7 +1074,6 @@
                 return;
             }
 
-            // Disable button để tránh spam
             const btn = document.querySelector('.post-btn');
             btn.disabled = true;
             btn.textContent = '⏳ Đang đăng...';
@@ -1031,8 +1081,8 @@
             try {
                 const user = auth.currentUser;
                 await db.collection('posts').add({
-                    user: user.displayName || 'Doraemon Fansub VN',
-                    avatar: (user.displayName || 'D')[0].toUpperCase(),
+                    user: user.displayName || 'Doraemon FanSub',
+                    avatar: LOGO_URL,
                     color: '1',
                     content: content,
                     image: '',
@@ -1092,9 +1142,14 @@
 
                     const commentsHtml = (p.comments || []).map(c => `
                         <div class="comment-item">
-                            <div class="avatar color-${c.color || '1'}">${c.avatar || 'U'}</div>
+                            <div class="avatar">
+                                <img src="${c.avatar || LOGO_URL}" alt="avatar">
+                            </div>
                             <div class="comment-body">
-                                <div class="name">${c.user || 'Anonymous'}</div>
+                                <div class="name">
+                                    ${c.user || 'Doraemon FanSub'}
+                                    <img src="${LOGO_URL}" class="logo-small" alt="logo">
+                                </div>
                                 <div class="text">${c.text || ''}</div>
                                 <div class="time">${c.time || 'Vừa xong'}</div>
                             </div>
@@ -1104,9 +1159,15 @@
                     html += `
                         <div class="post-card" id="post-${id}">
                             <div class="post-header">
-                                <div class="avatar color-${p.color || '1'}">${p.avatar || 'D'}</div>
+                                <div class="avatar">
+                                    <img src="${p.avatar || LOGO_URL}" alt="avatar">
+                                </div>
                                 <div class="info">
-                                    <div class="name">${p.user || 'Doraemon Fansub VN'} <span class="badge">●</span></div>
+                                    <div class="name">
+                                        ${p.user || 'Doraemon FanSub'}
+                                        <img src="${LOGO_URL}" class="logo-small" alt="logo">
+                                        <span class="badge">●</span>
+                                    </div>
                                     <div class="time">${p.time || 'Vừa xong'}</div>
                                 </div>
                                 <button class="more-btn" onclick="showPostOptions('${id}')">⋯</button>
@@ -1196,8 +1257,8 @@
                 const data = doc.data();
                 const comments = data.comments || [];
                 comments.push({
-                    user: 'Doraemon Fansub VN',
-                    avatar: 'D',
+                    user: 'Doraemon FanSub',
+                    avatar: LOGO_URL,
                     color: '1',
                     text: text,
                     time: 'Vừa xong'
@@ -1218,7 +1279,7 @@
             if (!post) return;
             const content = post.querySelector('.post-content')?.textContent || '';
             if (navigator.share) {
-                navigator.share({ title: 'Doraemon Fansub VN', text: content }).catch(() => {});
+                navigator.share({ title: 'Doraemon FanSub', text: content }).catch(() => {});
             } else {
                 navigator.clipboard.writeText(content)
                     .then(() => alert('📤 Đã sao chép nội dung!'))
@@ -1314,7 +1375,6 @@
 
                 const m = doc.data();
 
-                // Tăng lượt xem
                 try {
                     await db.collection('movies').doc(movieId).update({
                         views: (m.views || 0) + 1
@@ -1352,7 +1412,7 @@
                         ${videoContent}
                         <div class="movie-footer">
                             <span>👁️ ${(m.views || 0) + 1} lượt xem</span>
-                            <span>🎬 Doraemon Fansub VN</span>
+                            <span>🎬 <img src="${LOGO_URL}" style="height:20px;width:auto;border-radius:50%;vertical-align:middle;"> Doraemon FanSub</span>
                         </div>
                     </div>
                 `;
@@ -1421,10 +1481,9 @@
         // ============================================================
         // INIT
         // ============================================================
-        console.log('🎬 Doraemon Fansub VN đã sẵn sàng!');
+        console.log('🎬 Doraemon FanSub đã sẵn sàng!');
         console.log('👑 Admin:', ADMIN_EMAIL);
-        console.log('📌 Để đăng bài được, cần cập nhật Firestore Rules:');
-        console.log('   allow write: if request.auth != null;');
+        console.log('🖼️ Logo URL:', LOGO_URL);
     </script>
 </body>
 </html>
