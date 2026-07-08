@@ -126,7 +126,6 @@
             color: #ffeb3b;
         }
 
-        /* ===== TÍCH XANH ===== */
         .verified-badge {
             display: inline-block;
             background: #ffeb3b;
@@ -1100,13 +1099,80 @@
             transform: scale(1.05);
         }
 
+        /* ===== ACCOUNT DELETED MODAL ===== */
+        .account-deleted-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .account-deleted-modal.active {
+            display: flex;
+        }
+
+        .account-deleted-content {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 35px;
+            max-width: 440px;
+            width: 90%;
+            text-align: center;
+            animation: slideUp 0.5s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .account-deleted-content .icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .account-deleted-content h2 {
+            font-size: 22px;
+            color: #1a1a2e;
+            margin-bottom: 12px;
+        }
+
+        .account-deleted-content p {
+            color: #666;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .account-deleted-content .btn-register {
+            padding: 12px 40px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .account-deleted-content .btn-register:hover {
+            background: #1557b0;
+            transform: scale(1.05);
+        }
+
         @keyframes slideUp {
             from {
-                transform: translateX(-50%) translateY(30px);
+                transform: translateY(30px);
                 opacity: 0;
             }
             to {
-                transform: translateX(-50%) translateY(0);
+                transform: translateY(0);
                 opacity: 1;
             }
         }
@@ -1268,10 +1334,26 @@
                 font-size: 7px;
                 padding: 0px 4px;
             }
+            .account-deleted-content {
+                padding: 30px 20px;
+            }
         }
     </style>
 </head>
 <body>
+
+    <!-- ===== ACCOUNT DELETED MODAL ===== -->
+    <div class="account-deleted-modal" id="accountDeletedModal">
+        <div class="account-deleted-content">
+            <div class="icon">🚫</div>
+            <h2>⚠️ Tài khoản đã bị xóa</h2>
+            <p>
+                Tài khoản của bạn đã bị xóa trong đợt lọc tài khoản ảo vừa qua.<br><br>
+                <strong>Vui lòng đăng ký lại để sử dụng dịch vụ.</strong>
+            </p>
+            <a href="login.html" class="btn-register">📝 Đăng ký lại</a>
+        </div>
+    </div>
 
     <!-- ===== HEADER ===== -->
     <header>
@@ -1328,14 +1410,6 @@
                                 <div id="previewContent"></div>
                                 <button class="remove-btn" onclick="removeUpload()">✕</button>
                                 <div class="file-name" id="fileName">Chưa có file</div>
-                            </div>
-
-                            <!-- Upload Progress -->
-                            <div class="upload-progress" id="uploadProgress">
-                                <span id="uploadStatus">📤 Đang tải lên Cloudinary...</span>
-                                <div class="progress-bar">
-                                    <div class="fill" id="progressFill"></div>
-                                </div>
                             </div>
 
                             <div class="create-post-bottom">
@@ -1454,6 +1528,7 @@
         const uploadProgress = document.getElementById('uploadProgress');
         const progressFill = document.getElementById('progressFill');
         const uploadStatus = document.getElementById('uploadStatus');
+        const accountDeletedModal = document.getElementById('accountDeletedModal');
 
         // ============================================================
         // LẤY DANH SÁCH ADMIN
@@ -1468,7 +1543,6 @@
                         adminEmails.add(data.email);
                     }
                 });
-                // Thêm Super Admin
                 adminEmails.add(SUPER_ADMIN_EMAIL);
                 console.log('✅ Danh sách Admin:', adminEmails);
             } catch (e) {
@@ -1485,13 +1559,50 @@
         }
 
         // ============================================================
+        // KIỂM TRA TÀI KHOẢN BỊ XÓA
+        // ============================================================
+        async function checkAccountDeleted(user) {
+            if (!user) return false;
+
+            try {
+                const doc = await db.collection('users').doc(user.uid).get();
+
+                // Nếu không tồn tại trong Firestore -> tài khoản đã bị xóa
+                if (!doc.exists) {
+                    console.warn('⚠️ Tài khoản đã bị xóa:', user.email);
+                    return true;
+                }
+
+                return false;
+            } catch (e) {
+                console.error('Lỗi kiểm tra tài khoản:', e);
+                return false;
+            }
+        }
+
+        // ============================================================
+        // HIỂN THỊ MODAL TÀI KHOẢN BỊ XÓA
+        // ============================================================
+        function showAccountDeletedModal() {
+            accountDeletedModal.classList.add('active');
+            // Đăng xuất người dùng
+            auth.signOut().catch(() => {});
+        }
+
+        // ============================================================
         // AUTH STATE
         // ============================================================
         auth.onAuthStateChanged(async (user) => {
-            // Load danh sách admin trước
             await loadAdminList();
 
             if (user) {
+                // KIỂM TRA TÀI KHOẢN BỊ XÓA
+                const isDeleted = await checkAccountDeleted(user);
+                if (isDeleted) {
+                    showAccountDeletedModal();
+                    return;
+                }
+
                 isLoggedIn = true;
                 currentUserEmail = user.email;
                 authStatus.style.display = 'flex';
@@ -1504,7 +1615,6 @@
                 createPostBox.style.pointerEvents = 'auto';
                 postInput.placeholder = `${user.displayName || 'Bạn'} đang nghĩ gì thế?`;
 
-                // Kiểm tra quyền admin
                 isAdmin = isUserAdmin(user.email);
 
                 if (isAdmin) {
@@ -1796,7 +1906,6 @@
 
             let html = '';
             for (const p of posts) {
-                // Kiểm tra admin từ email
                 const isPostAdmin = isUserAdmin(p.userEmail);
 
                 const commentsHtml = await Promise.all((p.comments || []).map(async (c) => {
@@ -2237,9 +2346,8 @@
         // ============================================================
         console.log('🎬 Doraemon đã sẵn sàng!');
         console.log('👑 Super Admin:', SUPER_ADMIN_EMAIL);
-        console.log('✅ Đã thêm tích xanh cho Admin!');
-        console.log('📎 Đã thêm tính năng đính kèm ảnh/video!');
-        console.log('👥 Click vào tên user để xem trang cá nhân!');
+        console.log('✅ Đã thêm kiểm tra tài khoản bị xóa!');
+        console.log('🚫 Tài khoản bị xóa sẽ hiển thị popup yêu cầu đăng ký lại!');
     </script>
 </body>
 </html>
