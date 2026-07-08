@@ -69,6 +69,33 @@
             margin-top: 4px;
         }
 
+        /* Nút quay lại trang chủ */
+        .sidebar-home-btn {
+            margin: 8px 12px 16px 12px;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .sidebar-home-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: translateX(4px);
+        }
+
+        .sidebar-home-btn .icon {
+            font-size: 18px;
+        }
+
         .sidebar-menu {
             list-style: none;
             padding: 0 10px;
@@ -180,6 +207,26 @@
             border-radius: 20px;
             font-weight: 700;
             font-size: 13px;
+        }
+
+        .page-header .home-link {
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            text-decoration: none;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .page-header .home-link:hover {
+            background: #1a73e8;
+            color: white;
+            transform: scale(1.02);
         }
 
         .stats-grid {
@@ -665,6 +712,13 @@
             <h2>🎬 <span>Doraemon</span> VN</h2>
             <small>Admin Dashboard</small>
         </div>
+
+        <!-- NÚT QUAY LẠI TRANG CHỦ -->
+        <a href="index.html" class="sidebar-home-btn">
+            <span class="icon">🏠</span>
+            Về trang chủ
+        </a>
+
         <ul class="sidebar-menu">
             <li class="active" data-tab="overview"><span class="icon">📊</span> Tổng quan</li>
             <li data-tab="posts"><span class="icon">📝</span> Quản lý bài viết</li>
@@ -685,7 +739,10 @@
     <main class="main">
         <div class="page-header">
             <h1 id="pageTitle">📊 Tổng quan</h1>
-            <span class="admin-badge">👑 Admin</span>
+            <div style="display:flex;gap:10px;align-items:center;">
+                <a href="index.html" class="home-link">🏠 Về trang chủ</a>
+                <span class="admin-badge">👑 Admin</span>
+            </div>
         </div>
 
         <div class="stats-grid" id="statsGrid">
@@ -708,6 +765,14 @@
                 <div style="padding:10px 0;">
                     <h3 style="margin-bottom:8px;">👋 Chào mừng Admin!</h3>
                     <p style="color:#666;font-size:15px;line-height:1.6;">Quản lý nội dung Doraemon Fansub VN tại đây.</p>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;">
+                        <span style="background:#e8f0fe;padding:6px 14px;border-radius:8px;font-size:13px;">✅ Quản lý bài viết</span>
+                        <span style="background:#e8f0fe;padding:6px 14px;border-radius:8px;font-size:13px;">✅ Quản lý phim</span>
+                        <span style="background:#e8f0fe;padding:6px 14px;border-radius:8px;font-size:13px;">✅ Quản lý người dùng</span>
+                    </div>
+                    <div style="margin-top:16px;padding:12px 16px;background:#f8f9fa;border-radius:10px;border:1px dashed #e4e6eb;">
+                        <span style="font-size:13px;color:#999;">💡 <strong>Mẹo:</strong> Click "🏠 Về trang chủ" để quay lại giao diện chính</span>
+                    </div>
                 </div>
             </div>
 
@@ -899,7 +964,7 @@
         }
 
         // ============================================================
-        // EMBED PREVIEW (Chỉ mã nhúng)
+        // EMBED PREVIEW
         // ============================================================
         function updateEmbedPreview() {
             const embedCode = movieEmbed.value.trim();
@@ -1288,7 +1353,7 @@
 
         console.log('🔥 Dashboard admin đã sẵn sàng!');
         console.log('👑 Admin:', ADMIN_EMAIL);
-        console.log('📌 Chỉ hỗ trợ mã nhúng video (embed code)');
+        console.log('🏠 Nhấn "Về trang chủ" để quay lại giao diện chính.');
     </script>
 </body>
 </html>
