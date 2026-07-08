@@ -86,31 +86,6 @@
             margin-left: 42px;
         }
 
-        .sidebar-home-btn {
-            margin: 4px 12px 12px 12px;
-            padding: 10px 14px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 10px;
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-            font-size: 13px;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-
-        .sidebar-home-btn:hover {
-            background: rgba(255, 255, 255, 0.18);
-        }
-
-        .sidebar-home-btn .icon {
-            font-size: 16px;
-        }
-
         .sidebar-menu {
             list-style: none;
             padding: 0 10px;
@@ -875,11 +850,6 @@
             <small>Admin Dashboard</small>
         </div>
 
-        <a href="index.html" class="sidebar-home-btn">
-            <span class="icon">🏠</span>
-            Về trang chủ
-        </a>
-
         <ul class="sidebar-menu">
             <li class="active" data-tab="overview"><span class="icon">📊</span> Tổng quan</li>
             <li data-tab="posts"><span class="icon">📝</span> Quản lý bài viết</li>
@@ -905,7 +875,7 @@
                 <span id="pageTitle">📊 Tổng quan</span>
             </h1>
             <div class="header-right">
-                <a href="index.html" class="home-link">🏠 Về trang</a>
+                <a href="index.html" class="home-link">🏠 Về trang chủ</a>
                 <span class="admin-badge">👑 Admin</span>
             </div>
         </div>
@@ -1560,6 +1530,8 @@
         console.log('🖼️ Logo URL:', LOGO_URL);
         console.log('📱 Đã tối ưu hóa cho điện thoại!');
         console.log('🏠 Click logo để về trang chủ!');
+        console.log('🗑️ Đã xóa nút "Vẽ trang chủ" trong sidebar!');
+        console.log('📝 Đã sửa "Về trang" thành "Về trang chủ"!');
     </script>
 </body>
 </html>
