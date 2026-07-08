@@ -776,7 +776,7 @@
         });
 
         // ============================================================
-        // UPLOAD AVATAR (Cloudinary)
+        // UPLOAD AVATAR (Cloudinary - ĐÃ SỬA LỖI)
         // ============================================================
         function openAvatarUpload() {
             if (!currentUser) {
@@ -784,84 +784,117 @@
                 return;
             }
 
+            // Kiểm tra Cloudinary đã load chưa
+            if (typeof cloudinary === 'undefined') {
+                showToast('⚠️ Cloudinary đang tải, vui lòng thử lại sau!', true);
+                return;
+            }
+
             const widget = cloudinary.createUploadWidget({
-                    cloudName: CLOUDINARY_CONFIG.cloudName,
-                    uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
-                    folder: CLOUDINARY_CONFIG.folder,
-                    sources: ['local', 'url', 'camera', 'google_drive'],
-                    multiple: false,
-                    maxFileSize: 5000000,
-                    resourceType: 'image',
-                    clientAllowedFormats: ['image/*'],
-                    cropping: true,
-                    croppingAspectRatio: 1,
-                    styles: {
-                        palette: {
-                            window: '#FFFFFF',
-                            sourceBg: '#f0f2f5',
-                            windowBorder: '#e4e6eb',
-                            tabIcon: '#1a73e8',
-                            inactiveTabIcon: '#65676b',
-                            menuIcons: '#1a73e8',
-                            link: '#1a73e8',
-                            action: '#1a73e8',
-                            inProgress: '#1a73e8',
-                            complete: '#34a853',
-                            error: '#e94560',
-                            textDark: '#1a1a2e',
-                            textLight: '#65676b'
-                        }
+                cloudName: CLOUDINARY_CONFIG.cloudName,
+                uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
+                folder: CLOUDINARY_CONFIG.folder,
+                sources: ['local', 'url', 'camera', 'google_drive', 'facebook', 'instagram'],
+                multiple: false,
+                maxFileSize: 10000000, // 10MB
+                resourceType: 'image',
+                // Cho phép tất cả định dạng ảnh
+                clientAllowedFormats: [
+                    'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'svg', 'ico', 'heic', 'heif'
+                ],
+                cropping: true,
+                croppingAspectRatio: 1,
+                showAdvancedOptions: false,
+                use_filename: true,
+                unique_filename: true,
+                styles: {
+                    palette: {
+                        window: '#FFFFFF',
+                        sourceBg: '#f0f2f5',
+                        windowBorder: '#e4e6eb',
+                        tabIcon: '#1a73e8',
+                        inactiveTabIcon: '#65676b',
+                        menuIcons: '#1a73e8',
+                        link: '#1a73e8',
+                        action: '#1a73e8',
+                        inProgress: '#1a73e8',
+                        complete: '#34a853',
+                        error: '#e94560',
+                        textDark: '#1a1a2e',
+                        textLight: '#65676b'
                     }
                 },
-                async (error, result) => {
-                    if (error) {
-                        showToast('❌ Upload thất bại!', true);
-                        uploadProgress.style.display = 'none';
-                        return;
+                text: {
+                    en: {
+                        queue: {
+                            title: 'Chọn ảnh đại diện',
+                            title_upload: 'Tải lên Cloudinary'
+                        }
                     }
+                }
+            }, async (error, result) => {
+                if (error) {
+                    console.error('Lỗi Cloudinary:', error);
+                    showToast('❌ Upload thất bại: ' + (error.message || 'Lỗi không xác định'), true);
+                    uploadProgress.style.display = 'none';
+                    return;
+                }
 
-                    if (result.event === 'success') {
-                        const avatarUrl = result.info.secure_url;
+                if (result.event === 'success') {
+                    const avatarUrl = result.info.secure_url;
 
-                        // Update UI
-                        profileAvatar.src = avatarUrl;
-                        userAvatar.src = avatarUrl;
+                    // Update UI
+                    profileAvatar.src = avatarUrl;
+                    userAvatar.src = avatarUrl;
 
-                        // Update Firestore
+                    // Update Firestore
+                    try {
                         await db.collection('users').doc(currentUser.uid).update({
                             photoURL: avatarUrl,
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
-
-                        // Update Auth (nếu có thể)
-                        try {
-                            await currentUser.updateProfile({ photoURL: avatarUrl });
-                        } catch (e) {
-                            console.warn('Không thể update Auth profile:', e);
-                        }
-
-                        uploadStatus.textContent = '✅ Đã tải ảnh lên Cloudinary thành công!';
-                        progressFill.style.width = '100%';
-                        setTimeout(() => {
-                            uploadProgress.style.display = 'none';
-                            progressFill.style.width = '0%';
-                        }, 2000);
-
-                        showToast('✅ Đổi avatar thành công!');
+                    } catch (e) {
+                        console.warn('Không thể update Firestore:', e);
                     }
 
-                    if (result.event === 'progress') {
-                        uploadProgress.style.display = 'block';
-                        const progress = Math.round((result.info.bytesUploaded / result.info.totalBytes) * 100);
-                        progressFill.style.width = progress + '%';
-                        uploadStatus.textContent = `📤 Đang tải ảnh lên Cloudinary... ${progress}%`;
+                    // Update Auth
+                    try {
+                        await currentUser.updateProfile({ photoURL: avatarUrl });
+                    } catch (e) {
+                        console.warn('Không thể update Auth profile:', e);
                     }
 
-                    if (result.event === 'close') {
+                    uploadStatus.textContent = '✅ Đã tải ảnh lên Cloudinary thành công!';
+                    progressFill.style.width = '100%';
+                    setTimeout(() => {
                         uploadProgress.style.display = 'none';
+                        progressFill.style.width = '0%';
+                    }, 2000);
+
+                    showToast('✅ Đổi avatar thành công!');
+
+                    // Cập nhật lại tên trong header (trong trường hợp avatar đã đổi)
+                    if (currentUser) {
+                        userAvatar.src = avatarUrl;
                     }
                 }
-            );
+
+                if (result.event === 'progress') {
+                    uploadProgress.style.display = 'block';
+                    const progress = Math.round((result.info.bytesUploaded / result.info.totalBytes) * 100);
+                    progressFill.style.width = progress + '%';
+                    uploadStatus.textContent = `📤 Đang tải ảnh lên Cloudinary... ${progress}%`;
+                }
+
+                if (result.event === 'close') {
+                    uploadProgress.style.display = 'none';
+                }
+
+                if (result.event === 'error') {
+                    showToast('❌ Upload thất bại: ' + (result.info.message || 'Lỗi không xác định'), true);
+                    uploadProgress.style.display = 'none';
+                }
+            });
             widget.open();
         }
 
@@ -882,7 +915,7 @@
         // ============================================================
         console.log('👤 Trang cá nhân đã sẵn sàng!');
         console.log('🖼️ Có thể đổi avatar và tên hiển thị.');
+        console.log('📷 Hỗ trợ định dạng: JPG, PNG, GIF, WEBP, BMP, TIFF, SVG, HEIC');
     </script>
-
 </body>
 </html>
