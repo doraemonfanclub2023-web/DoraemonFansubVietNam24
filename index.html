@@ -39,9 +39,9 @@
         }
 
         .container {
-            max-width: 680px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 16px;
+            padding: 0 20px;
         }
 
         .header-content {
@@ -54,14 +54,14 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 800;
             color: white;
             text-decoration: none;
         }
 
         .logo img {
-            height: 36px;
+            height: 40px;
             width: auto;
             border-radius: 50%;
             object-fit: cover;
@@ -94,7 +94,7 @@
             color: white;
             font-weight: 600;
             font-size: 14px;
-            max-width: 120px;
+            max-width: 150px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -104,10 +104,10 @@
             background: #ffeb3b;
             color: #0d47a1;
             border: none;
-            padding: 6px 18px;
+            padding: 8px 20px;
             border-radius: 20px;
             font-weight: 700;
-            font-size: 13px;
+            font-size: 14px;
             cursor: pointer;
             transition: 0.3s;
             text-decoration: none;
@@ -121,7 +121,7 @@
             background: rgba(255, 255, 255, 0.2);
             color: white;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 6px 16px;
+            padding: 8px 18px;
             border-radius: 20px;
             font-weight: 600;
             font-size: 13px;
@@ -153,7 +153,7 @@
 
         /* Main */
         .main-content {
-            padding: 16px 0 40px;
+            padding: 20px 0 40px;
         }
 
         /* Tabs */
@@ -163,16 +163,16 @@
             background: white;
             border-radius: 16px;
             padding: 4px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
         }
 
         .tab-btn {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             border: none;
             background: transparent;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             color: #65676b;
             cursor: pointer;
@@ -189,13 +189,31 @@
             color: white;
         }
 
+        /* ===== NEWSFEED LAYOUT ===== */
+        .newsfeed-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .newsfeed-left {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .newsfeed-right {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         /* Create post */
         .create-post {
             background: white;
             border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
             transition: 0.3s;
         }
 
@@ -206,8 +224,8 @@
         }
 
         .create-post-top .avatar {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             overflow: hidden;
             flex-shrink: 0;
@@ -223,15 +241,9 @@
             object-fit: cover;
         }
 
-        .create-post-top .avatar .default-avatar {
-            color: white;
-            font-weight: 700;
-            font-size: 18px;
-        }
-
         .create-post-top input {
             flex: 1;
-            padding: 12px 16px;
+            padding: 12px 18px;
             border: none;
             background: #f0f2f5;
             border-radius: 25px;
@@ -248,8 +260,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 12px;
-            padding-top: 12px;
+            margin-top: 14px;
+            padding-top: 14px;
             border-top: 1px solid #e4e6eb;
         }
 
@@ -281,7 +293,7 @@
             background: #1a73e8;
             color: white;
             border: none;
-            padding: 8px 24px;
+            padding: 8px 28px;
             border-radius: 25px;
             font-weight: 600;
             font-size: 14px;
@@ -297,9 +309,8 @@
         .post-card {
             background: white;
             border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
             transition: 0.3s;
         }
 
@@ -311,7 +322,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .post-header .avatar {
@@ -332,23 +343,18 @@
             object-fit: cover;
         }
 
-        .post-header .avatar .default-avatar {
-            color: white;
-            font-weight: 700;
-            font-size: 20px;
-        }
-
         .post-header .info {
             flex: 1;
         }
 
         .post-header .info .name {
             font-weight: 700;
-            font-size: 15px;
+            font-size: 16px;
             color: #1a1a2e;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .post-header .info .name .badge {
@@ -496,12 +502,6 @@
             object-fit: cover;
         }
 
-        .comment-item .avatar .default-avatar {
-            color: white;
-            font-weight: 700;
-            font-size: 14px;
-        }
-
         .comment-item .comment-body {
             background: #f0f2f5;
             padding: 8px 14px;
@@ -567,39 +567,39 @@
         /* Empty state */
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
+            padding: 80px 20px;
             background: white;
             border-radius: 16px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
 
         .empty-state .icon {
-            font-size: 64px;
+            font-size: 80px;
             margin-bottom: 16px;
         }
 
         .empty-state h3 {
-            font-size: 20px;
+            font-size: 22px;
             color: #1a1a2e;
             margin-bottom: 8px;
         }
 
         .empty-state p {
             color: #65676b;
-            font-size: 15px;
+            font-size: 16px;
         }
 
         /* ===== MOVIE SECTION ===== */
         .movie-layout {
             display: grid;
-            grid-template-columns: 180px 1fr;
-            gap: 16px;
+            grid-template-columns: 220px 1fr;
+            gap: 20px;
         }
 
         .movie-categories {
             background: white;
             border-radius: 16px;
-            padding: 16px;
+            padding: 20px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
             height: fit-content;
             position: sticky;
@@ -607,15 +607,15 @@
         }
 
         .movie-categories .category-title {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 700;
             color: #1a1a2e;
-            margin-bottom: 12px;
-            padding-bottom: 10px;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
             border-bottom: 2px solid #f0f2f5;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .movie-categories .category-list {
@@ -623,14 +623,14 @@
         }
 
         .movie-categories .category-list li {
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 10px;
             cursor: pointer;
             transition: 0.3s;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 500;
             color: #65676b;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
 
         .movie-categories .category-list li:hover {
@@ -644,10 +644,10 @@
 
         .movie-categories .category-list li .count {
             float: right;
-            font-size: 11px;
+            font-size: 12px;
             color: #999;
             background: #f0f2f5;
-            padding: 0 8px;
+            padding: 0 10px;
             border-radius: 12px;
         }
 
@@ -658,8 +658,8 @@
 
         .movie-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
         }
 
         .movie-card {
@@ -698,18 +698,18 @@
         }
 
         .movie-card .lock-overlay .lock-icon {
-            font-size: 40px;
-            margin-bottom: 8px;
+            font-size: 44px;
+            margin-bottom: 10px;
         }
 
         .movie-card .lock-overlay .lock-text {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .movie-card .lock-overlay .lock-sub {
-            font-size: 12px;
+            font-size: 13px;
             opacity: 0.8;
             margin-top: 4px;
         }
@@ -721,17 +721,17 @@
 
         .movie-card img {
             width: 100%;
-            height: 160px;
+            height: 180px;
             object-fit: cover;
         }
 
         .movie-card .movie-info {
-            padding: 10px 12px;
+            padding: 12px 14px;
         }
 
         .movie-card .movie-info h4 {
-            font-size: 14px;
-            margin-bottom: 2px;
+            font-size: 15px;
+            margin-bottom: 4px;
             color: #1a1a2e;
             display: -webkit-box;
             -webkit-line-clamp: 1;
@@ -740,7 +740,7 @@
         }
 
         .movie-card .movie-info p {
-            font-size: 12px;
+            font-size: 13px;
             color: #666;
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -752,33 +752,33 @@
             display: inline-block;
             background: #e8f0fe;
             color: #1a73e8;
-            padding: 1px 10px;
+            padding: 2px 12px;
             border-radius: 12px;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
-            margin-top: 4px;
+            margin-top: 6px;
         }
 
         .movie-card .movie-info .views {
-            font-size: 11px;
+            font-size: 12px;
             color: #999;
-            margin-top: 3px;
+            margin-top: 4px;
         }
 
         .loading-spinner {
             text-align: center;
-            padding: 40px;
+            padding: 60px 20px;
             color: #999;
         }
 
         .loading-spinner .spinner {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             border: 4px solid #f0f2f5;
             border-top: 4px solid #1a73e8;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 12px;
+            margin: 0 auto 14px;
         }
 
         @keyframes spin {
@@ -822,7 +822,7 @@
             background: #1a1a2e;
             border-radius: 20px;
             padding: 30px;
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
@@ -868,12 +868,12 @@
         .movie-modal-content h2 {
             color: white;
             margin-bottom: 6px;
-            font-size: 22px;
+            font-size: 24px;
         }
 
         .movie-modal-content .genre-tag {
             color: #ffeb3b;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
         }
 
@@ -881,6 +881,7 @@
             color: #ccc;
             margin: 10px 0 16px 0;
             line-height: 1.6;
+            font-size: 15px;
         }
 
         .movie-modal-content .video-wrapper {
@@ -891,7 +892,7 @@
 
         .movie-modal-content .video-wrapper iframe {
             width: 100%;
-            height: 400px;
+            height: 450px;
             border: none;
             display: block;
         }
@@ -905,9 +906,9 @@
         .movie-modal-content .movie-footer {
             display: flex;
             justify-content: space-between;
-            margin-top: 12px;
+            margin-top: 14px;
             color: #999;
-            font-size: 13px;
+            font-size: 14px;
         }
 
         .login-required-toast {
@@ -990,8 +991,18 @@
             background: #1a73e8;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 992px) {
+            .container {
+                max-width: 100%;
+                padding: 0 16px;
+            }
+            .newsfeed-grid {
+                grid-template-columns: 1fr;
+            }
+            .movie-grid {
+                grid-template-columns: 1fr 1fr;
+            }
             .movie-layout {
                 grid-template-columns: 1fr;
             }
@@ -1001,12 +1012,12 @@
                 display: flex;
                 flex-wrap: wrap;
                 gap: 6px;
-                padding: 12px 14px;
+                padding: 14px 16px;
             }
             .movie-categories .category-title {
                 width: 100%;
                 margin-bottom: 6px;
-                font-size: 13px;
+                font-size: 14px;
                 padding-bottom: 6px;
             }
             .movie-categories .category-list {
@@ -1015,11 +1026,44 @@
                 gap: 4px;
             }
             .movie-categories .category-list li {
-                padding: 4px 12px;
-                font-size: 12px;
+                padding: 5px 14px;
+                font-size: 13px;
                 border-radius: 20px;
             }
             .movie-categories .category-list li .count {
+                display: none;
+            }
+            .movie-modal-content .video-wrapper iframe {
+                height: 350px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 12px;
+            }
+            .logo {
+                font-size: 18px;
+            }
+            .logo img {
+                height: 32px;
+            }
+            .post-footer button {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            .post-actions {
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            .post-actions button {
+                font-size: 13px;
+                padding: 4px 8px;
+            }
+            .create-post-top input {
+                font-size: 14px;
+            }
+            #authStatus .user-name {
                 display: none;
             }
             .movie-grid {
@@ -1027,12 +1071,16 @@
                 gap: 12px;
             }
             .movie-card img {
-                height: 130px;
+                height: 140px;
             }
             .login-required-toast {
                 flex-direction: column;
                 gap: 12px;
                 padding: 16px 20px;
+            }
+            .dashboard-link {
+                font-size: 11px;
+                padding: 4px 10px;
             }
         }
 
@@ -1043,19 +1091,24 @@
             .movie-card img {
                 height: 180px;
             }
-            .movie-categories .category-list li {
-                font-size: 11px;
-                padding: 3px 10px;
-            }
             .movie-modal-content {
                 padding: 16px;
             }
             .movie-modal-content .video-wrapper iframe {
                 height: 200px;
             }
-            .dashboard-link {
+            .movie-categories .category-list li {
                 font-size: 11px;
-                padding: 4px 10px;
+                padding: 3px 10px;
+            }
+            .empty-state {
+                padding: 40px 16px;
+            }
+            .empty-state .icon {
+                font-size: 50px;
+            }
+            .empty-state h3 {
+                font-size: 18px;
             }
         }
     </style>
@@ -1095,29 +1148,37 @@
 
             <!-- Newsfeed Tab -->
             <div id="tab-newsfeed">
-                <!-- Create Post -->
-                <div class="create-post" id="createPostBox">
-                    <div class="create-post-top">
-                        <div class="avatar">
-                            <img src="https://i.ibb.co/9kJhtfp1/Doraemon-fansub.png" alt="Logo">
+                <div class="newsfeed-grid">
+                    <!-- Cột trái -->
+                    <div class="newsfeed-left">
+                        <!-- Create Post -->
+                        <div class="create-post" id="createPostBox">
+                            <div class="create-post-top">
+                                <div class="avatar">
+                                    <img src="https://i.ibb.co/9kJhtfp1/Doraemon-fansub.png" alt="Logo">
+                                </div>
+                                <input type="text" id="postInput" placeholder="Bạn đang nghĩ gì thế?">
+                            </div>
+                            <div class="create-post-bottom">
+                                <div class="post-actions">
+                                    <button onclick="alert('📎 Chức năng đang phát triển!')">📎 Ảnh/Video</button>
+                                    <button onclick="alert('😊 Chức năng đang phát triển!')">😊 Cảm xúc</button>
+                                </div>
+                                <button class="post-btn" onclick="createPost()">Đăng</button>
+                            </div>
                         </div>
-                        <input type="text" id="postInput" placeholder="Bạn đang nghĩ gì thế?">
-                    </div>
-                    <div class="create-post-bottom">
-                        <div class="post-actions">
-                            <button onclick="alert('📎 Chức năng đang phát triển!')">📎 Ảnh/Video</button>
-                            <button onclick="alert('😊 Chức năng đang phát triển!')">😊 Cảm xúc</button>
-                        </div>
-                        <button class="post-btn" onclick="createPost()">Đăng</button>
-                    </div>
-                </div>
 
-                <!-- Post List -->
-                <div id="postList">
-                    <div class="loading-spinner">
-                        <div class="spinner"></div>
-                        <p>Đang tải bài viết...</p>
+                        <!-- Post List (cột trái) -->
+                        <div id="postList">
+                            <div class="loading-spinner">
+                                <div class="spinner"></div>
+                                <p>Đang tải bài viết...</p>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Cột phải (bài viết thứ 2 trở đi) -->
+                    <div class="newsfeed-right" id="postListRight"></div>
                 </div>
             </div>
 
@@ -1187,6 +1248,7 @@
         const createPostBox = document.getElementById('createPostBox');
         const postInput = document.getElementById('postInput');
         const postList = document.getElementById('postList');
+        const postListRight = document.getElementById('postListRight');
         const movieList = document.getElementById('movieList');
         const loginRequiredToast = document.getElementById('loginRequiredToast');
 
@@ -1317,7 +1379,7 @@
         }
 
         // ============================================================
-        // LOAD POSTS
+        // LOAD POSTS (2 cột)
         // ============================================================
         async function loadPosts() {
             if (!postList) return;
@@ -1328,77 +1390,35 @@
                     .get();
 
                 if (snapshot.empty) {
-                    postList.innerHTML = `
+                    const emptyHtml = `
                         <div class="empty-state">
                             <div class="icon">📝</div>
                             <h3>Chưa có bài viết nào</h3>
                             <p>Hãy là người đầu tiên chia sẻ điều gì đó!</p>
                         </div>
                     `;
+                    postList.innerHTML = emptyHtml;
+                    postListRight.innerHTML = '';
                     return;
                 }
 
-                let html = '';
+                // Chia bài viết thành 2 cột
+                const posts = [];
                 snapshot.forEach(doc => {
                     const p = doc.data();
-                    const id = doc.id;
-
-                    const commentsHtml = (p.comments || []).map(c => `
-                        <div class="comment-item">
-                            <div class="avatar">
-                                <img src="${c.avatar || LOGO_URL}" alt="avatar">
-                            </div>
-                            <div class="comment-body">
-                                <div class="name">
-                                    ${c.user || 'Doraemon'}
-                                    <img src="${LOGO_URL}" class="logo-small" alt="logo">
-                                </div>
-                                <div class="text">${c.text || ''}</div>
-                                <div class="time">${c.time || 'Vừa xong'}</div>
-                            </div>
-                        </div>
-                    `).join('');
-
-                    html += `
-                        <div class="post-card" id="post-${id}">
-                            <div class="post-header">
-                                <div class="avatar">
-                                    <img src="${p.avatar || LOGO_URL}" alt="avatar">
-                                </div>
-                                <div class="info">
-                                    <div class="name">
-                                        ${p.user || 'Doraemon'}
-                                        <img src="${LOGO_URL}" class="logo-small" alt="logo">
-                                        <span class="badge">●</span>
-                                    </div>
-                                    <div class="time">${p.time || 'Vừa xong'}</div>
-                                </div>
-                                <button class="more-btn" onclick="showPostOptions('${id}')">⋯</button>
-                            </div>
-                            <div class="post-content">${p.content || ''}</div>
-                            ${p.image ? `<img src="${p.image}" class="post-image" alt="post image">` : ''}
-                            <div class="post-stats">
-                                <span class="likes"><span class="heart">❤️</span> ${p.likes || 0}</span>
-                                <span class="comments-count" onclick="toggleComments('${id}')">${(p.comments || []).length} bình luận</span>
-                            </div>
-                            <div class="post-footer">
-                                <button onclick="toggleLike('${id}')" class="${p.liked ? 'liked' : ''}">
-                                    ${p.liked ? '❤️' : '🤍'} Thích
-                                </button>
-                                <button onclick="toggleComments('${id}')">💬 Bình luận</button>
-                                <button onclick="sharePost('${id}')">📤 Chia sẻ</button>
-                            </div>
-                            <div class="comments-section ${p.showComments ? 'open' : ''}" id="comments-${id}">
-                                ${commentsHtml}
-                                <div class="comment-input">
-                                    <input type="text" id="commentInput-${id}" placeholder="Viết bình luận...">
-                                    <button onclick="addComment('${id}')">Gửi</button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                    p.id = doc.id;
+                    posts.push(p);
                 });
-                postList.innerHTML = html;
+
+                // Cột trái: bài viết 1, 3, 5...
+                const leftPosts = posts.filter((_, index) => index % 2 === 0);
+                // Cột phải: bài viết 2, 4, 6...
+                const rightPosts = posts.filter((_, index) => index % 2 === 1);
+
+                postList.innerHTML = renderPostCards(leftPosts);
+                postListRight.innerHTML = rightPosts.length > 0 ? renderPostCards(rightPosts) :
+                    `<div style="text-align:center;padding:40px;color:#999;font-size:15px;">✨ Đã xem hết bài viết</div>`;
+
             } catch (e) {
                 console.error('Lỗi tải bài viết:', e);
                 postList.innerHTML = `
@@ -1410,7 +1430,74 @@
                         <button onclick="loadPosts()" style="padding:8px 20px;background:#1a73e8;color:white;border:none;border-radius:20px;cursor:pointer;">🔄 Thử lại</button>
                     </div>
                 `;
+                postListRight.innerHTML = '';
             }
+        }
+
+        // ============================================================
+        // RENDER POST CARDS
+        // ============================================================
+        function renderPostCards(posts) {
+            if (!posts || posts.length === 0) return '';
+
+            let html = '';
+            posts.forEach(p => {
+                const commentsHtml = (p.comments || []).map(c => `
+                    <div class="comment-item">
+                        <div class="avatar">
+                            <img src="${c.avatar || LOGO_URL}" alt="avatar">
+                        </div>
+                        <div class="comment-body">
+                            <div class="name">
+                                ${c.user || 'Doraemon'}
+                                <img src="${LOGO_URL}" class="logo-small" alt="logo">
+                            </div>
+                            <div class="text">${c.text || ''}</div>
+                            <div class="time">${c.time || 'Vừa xong'}</div>
+                        </div>
+                    </div>
+                `).join('');
+
+                html += `
+                    <div class="post-card" id="post-${p.id}">
+                        <div class="post-header">
+                            <div class="avatar">
+                                <img src="${p.avatar || LOGO_URL}" alt="avatar">
+                            </div>
+                            <div class="info">
+                                <div class="name">
+                                    ${p.user || 'Doraemon'}
+                                    <img src="${LOGO_URL}" class="logo-small" alt="logo">
+                                    <span class="badge">●</span>
+                                </div>
+                                <div class="time">${p.time || 'Vừa xong'}</div>
+                            </div>
+                            <button class="more-btn" onclick="showPostOptions('${p.id}')">⋯</button>
+                        </div>
+                        <div class="post-content">${p.content || ''}</div>
+                        ${p.image ? `<img src="${p.image}" class="post-image" alt="post image">` : ''}
+                        <div class="post-stats">
+                            <span class="likes"><span class="heart">❤️</span> ${p.likes || 0}</span>
+                            <span class="comments-count" onclick="toggleComments('${p.id}')">${(p.comments || []).length} bình luận</span>
+                        </div>
+                        <div class="post-footer">
+                            <button onclick="toggleLike('${p.id}')" class="${p.liked ? 'liked' : ''}">
+                                ${p.liked ? '❤️' : '🤍'} Thích
+                            </button>
+                            <button onclick="toggleComments('${p.id}')">💬 Bình luận</button>
+                            <button onclick="sharePost('${p.id}')">📤 Chia sẻ</button>
+                        </div>
+                        <div class="comments-section ${p.showComments ? 'open' : ''}" id="comments-${p.id}">
+                            ${commentsHtml}
+                            <div class="comment-input">
+                                <input type="text" id="commentInput-${p.id}" placeholder="Viết bình luận...">
+                                <button onclick="addComment('${p.id}')">Gửi</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            return html;
         }
 
         // ============================================================
@@ -1491,7 +1578,7 @@
         }
 
         // ============================================================
-        // POST OPTIONS (Xóa - chỉ admin)
+        // POST OPTIONS
         // ============================================================
         async function showPostOptions(postId) {
             const user = auth.currentUser;
@@ -1562,9 +1649,6 @@
             }
         }
 
-        // ============================================================
-        // CẬP NHẬT SỐ LƯỢNG
-        // ============================================================
         function updateCategoryCounts(movies) {
             const counts = {
                 all: movies.length,
@@ -1579,9 +1663,6 @@
             document.getElementById('countSeri').textContent = counts.seri;
         }
 
-        // ============================================================
-        // RENDER MOVIES
-        // ============================================================
         function renderMoviesByCategory(category) {
             currentCategory = category;
             const filtered = category === 'all' ?
@@ -1626,9 +1707,6 @@
             movieList.innerHTML = html;
         }
 
-        // ============================================================
-        // SHOW LOGIN REQUIRED
-        // ============================================================
         function showLoginRequired() {
             loginRequiredToast.classList.add('show');
             setTimeout(() => {
@@ -1636,9 +1714,6 @@
             }, 5000);
         }
 
-        // ============================================================
-        // CATEGORY CLICK
-        // ============================================================
         document.getElementById('categoryList').addEventListener('click', function(e) {
             const li = e.target.closest('li');
             if (!li) return;
@@ -1780,6 +1855,7 @@
         console.log('🖼️ Logo URL:', LOGO_URL);
         console.log('🔒 Chức năng xem phim yêu cầu đăng nhập!');
         console.log('🏠 Click logo để về trang chủ!');
+        console.log('📱 Đã tối ưu giao diện 2 cột cho máy tính!');
     </script>
 </body>
 </html>
