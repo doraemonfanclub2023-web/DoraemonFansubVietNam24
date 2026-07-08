@@ -126,6 +126,7 @@
             color: #ffeb3b;
         }
 
+        /* ===== TÍCH XANH ===== */
         .verified-badge {
             display: inline-block;
             background: #ffeb3b;
@@ -1412,6 +1413,14 @@
                                 <div class="file-name" id="fileName">Chưa có file</div>
                             </div>
 
+                            <!-- Upload Progress -->
+                            <div class="upload-progress" id="uploadProgress">
+                                <span id="uploadStatus">📤 Đang tải lên Cloudinary...</span>
+                                <div class="progress-bar">
+                                    <div class="fill" id="progressFill"></div>
+                                </div>
+                            </div>
+
                             <div class="create-post-bottom">
                                 <div class="post-actions">
                                     <button onclick="openUploadWidget('image')">📎 Ảnh</button>
@@ -1559,23 +1568,19 @@
         }
 
         // ============================================================
-        // KIỂM TRA TÀI KHOẢN BỊ XÓA
+        // KIỂM TRA TÀI KHOẢN BỊ CẤM (BANNED)
         // ============================================================
-        async function checkAccountDeleted(user) {
-            if (!user) return false;
-
+        async function checkBannedUser(email) {
+            if (!email) return false;
             try {
-                const doc = await db.collection('users').doc(user.uid).get();
-
-                // Nếu không tồn tại trong Firestore -> tài khoản đã bị xóa
-                if (!doc.exists) {
-                    console.warn('⚠️ Tài khoản đã bị xóa:', user.email);
+                const doc = await db.collection('banned_users').doc(email).get();
+                if (doc.exists) {
+                    console.warn('⚠️ Tài khoản đã bị cấm:', email);
                     return true;
                 }
-
                 return false;
             } catch (e) {
-                console.error('Lỗi kiểm tra tài khoản:', e);
+                console.error('Lỗi kiểm tra banned:', e);
                 return false;
             }
         }
@@ -1596,9 +1601,9 @@
             await loadAdminList();
 
             if (user) {
-                // KIỂM TRA TÀI KHOẢN BỊ XÓA
-                const isDeleted = await checkAccountDeleted(user);
-                if (isDeleted) {
+                // KIỂM TRA TÀI KHOẢN BỊ CẤM
+                const isBanned = await checkBannedUser(user.email);
+                if (isBanned) {
                     showAccountDeletedModal();
                     return;
                 }
@@ -2346,8 +2351,10 @@
         // ============================================================
         console.log('🎬 Doraemon đã sẵn sàng!');
         console.log('👑 Super Admin:', SUPER_ADMIN_EMAIL);
-        console.log('✅ Đã thêm kiểm tra tài khoản bị xóa!');
+        console.log('✅ Đã thêm kiểm tra tài khoản bị cấm (banned_users)!');
         console.log('🚫 Tài khoản bị xóa sẽ hiển thị popup yêu cầu đăng ký lại!');
+        console.log('📎 Đã thêm tính năng đính kèm ảnh/video!');
+        console.log('👥 Click vào tên user để xem trang cá nhân!');
     </script>
 </body>
 </html>
