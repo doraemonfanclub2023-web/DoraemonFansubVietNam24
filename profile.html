@@ -660,7 +660,7 @@
         const uploadStatus = document.getElementById('uploadStatus');
 
         let currentUser = null;
-        let viewingUserId = null; // ID của user đang xem
+        let viewingUserId = null;
         let isViewingSelf = false;
         let isAdmin = false;
         let adminEmails = new Set();
@@ -709,6 +709,36 @@
         }
 
         // ============================================================
+        // KIỂM TRA USER EXIST TRONG FIRESTORE
+        // ============================================================
+        async function ensureUserInFirestore(user) {
+            if (!user) return false;
+
+            try {
+                const doc = await db.collection('users').doc(user.uid).get();
+
+                if (!doc.exists) {
+                    // Nếu chưa có, tạo mới
+                    const userData = {
+                        email: user.email,
+                        displayName: user.displayName || user.email.split('@')[0],
+                        photoURL: user.photoURL || '',
+                        providerData: user.providerData || [],
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    await db.collection('users').doc(user.uid).set(userData, { merge: true });
+                    console.log('✅ Đã tạo user trong Firestore:', user.email);
+                    return true;
+                }
+                return true;
+            } catch (e) {
+                console.error('❌ Lỗi kiểm tra user:', e);
+                return false;
+            }
+        }
+
+        // ============================================================
         // AUTH STATE
         // ============================================================
         auth.onAuthStateChanged(async (user) => {
@@ -723,6 +753,9 @@
                 userAvatar.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user
                     .displayName || user.email);
                 userName.textContent = user.displayName || user.email;
+
+                // Đảm bảo user được lưu trong Firestore
+                await ensureUserInFirestore(user);
 
                 isAdmin = isUserAdmin(user.email);
 
@@ -753,50 +786,71 @@
                 const doc = await db.collection('users').doc(uid).get();
 
                 if (!doc.exists) {
+                    // Nếu user chưa có trong Firestore, tạo mới
+                    if (uid === currentUser?.uid) {
+                        await ensureUserInFirestore(currentUser);
+                        const newDoc = await db.collection('users').doc(uid).get();
+                        if (newDoc.exists) {
+                            const data = newDoc.data();
+                            displayUserData(data);
+                            return;
+                        }
+                    }
                     showToast('❌ Không tìm thấy người dùng!', true);
                     return;
                 }
 
                 const data = doc.data();
-
-                // Hiển thị thông tin
-                profileAvatar.src = data.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data
-                    .displayName || 'User') + '&background=1a73e8&color=fff&size=120';
-                profileNameText.textContent = data.displayName || 'Người dùng';
-                profileEmail.textContent = data.email || '';
-                profileBio.textContent = data.bio || '⭐ Thành viên của Doraemon Fansub VN';
-
-                // Tích xanh Admin
-                if (isUserAdmin(data.email)) {
-                    profileBadge.style.display = 'inline-block';
-                } else {
-                    profileBadge.style.display = 'none';
-                }
-
-                // Badge "Bạn" nếu xem chính mình
-                if (isViewingSelf) {
-                    ownerBadge.style.display = 'inline-block';
-                } else {
-                    ownerBadge.style.display = 'none';
-                }
-
-                // Chỉ hiển thị form chỉnh sửa nếu xem chính mình
-                if (isViewingSelf) {
-                    editSection.style.display = 'block';
-                    avatarOverlay.style.display = 'block';
-                    editName.value = data.displayName || '';
-                    editBio.value = data.bio || '';
-                } else {
-                    editSection.style.display = 'none';
-                    avatarOverlay.style.display = 'none';
-                }
-
-                // Load thống kê
-                await loadStats(uid);
+                displayUserData(data);
 
             } catch (e) {
                 console.error('Lỗi tải dữ liệu:', e);
                 showToast('❌ Lỗi tải dữ liệu: ' + e.message, true);
+            }
+        }
+
+        // ============================================================
+        // HIỂN THỊ DỮ LIỆU USER
+        // ============================================================
+        function displayUserData(data) {
+            // Hiển thị thông tin
+            const displayName = data.displayName || data.email?.split('@')[0] || 'Người dùng';
+            const email = data.email || '';
+
+            profileAvatar.src = data.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) +
+                '&background=1a73e8&color=fff&size=120';
+            profileNameText.textContent = displayName;
+            profileEmail.textContent = email;
+            profileBio.textContent = data.bio || '⭐ Thành viên của Doraemon Fansub VN';
+
+            // Tích xanh Admin
+            if (isUserAdmin(data.email)) {
+                profileBadge.style.display = 'inline-block';
+            } else {
+                profileBadge.style.display = 'none';
+            }
+
+            // Badge "Bạn" nếu xem chính mình
+            if (isViewingSelf) {
+                ownerBadge.style.display = 'inline-block';
+            } else {
+                ownerBadge.style.display = 'none';
+            }
+
+            // Chỉ hiển thị form chỉnh sửa nếu xem chính mình
+            if (isViewingSelf) {
+                editSection.style.display = 'block';
+                avatarOverlay.style.display = 'block';
+                editName.value = displayName;
+                editBio.value = data.bio || '';
+            } else {
+                editSection.style.display = 'none';
+                avatarOverlay.style.display = 'none';
+            }
+
+            // Load thống kê
+            if (viewingUserId) {
+                loadStats(viewingUserId);
             }
         }
 
@@ -831,7 +885,7 @@
         }
 
         // ============================================================
-        // SAVE PROFILE (Chỉ khi xem chính mình)
+        // SAVE PROFILE
         // ============================================================
         document.getElementById('profileForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -878,7 +932,7 @@
         });
 
         // ============================================================
-        // UPLOAD AVATAR (Chỉ khi xem chính mình)
+        // UPLOAD AVATAR
         // ============================================================
         function openAvatarUpload() {
             if (!currentUser || !isViewingSelf) {
@@ -989,7 +1043,7 @@
         };
 
         console.log('👤 Trang cá nhân đã sẵn sàng!');
-        console.log('✅ Hỗ trợ xem trang cá nhân của user khác!');
+        console.log('✅ Đã sửa lỗi hiển thị tên người dùng!');
         console.log('📝 Sử dụng ?uid=USER_ID để xem trang của người khác');
     </script>
 </body>
