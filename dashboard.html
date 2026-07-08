@@ -15,6 +15,7 @@
     </script>
 
     <style>
+        /* ===== GIỮ NGUYÊN CSS CŨ ===== */
         * {
             margin: 0;
             padding: 0;
@@ -1049,9 +1050,7 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        // ============================================================
-        // FIREBASE
-        // ============================================================
+        // ===== GIỮ NGUYÊN SCRIPT CŨ =====
         const firebaseConfig = {
             apiKey: "AIzaSyBt3G9n5JYu3EsvqJR9IoW2vRAc_Es3-ws",
             authDomain: "doraemon-fansub-vietnam.firebaseapp.com",
@@ -1069,9 +1068,6 @@
         const ADMIN_EMAIL = 'tuankhaimoi12345@gmail.com';
         const LOGO_URL = 'https://i.ibb.co/9kJhtfp1/Doraemon-fansub.png';
 
-        // ============================================================
-        // DOM REFS
-        // ============================================================
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const menuToggle = document.getElementById('menuToggle');
@@ -1091,9 +1087,6 @@
         const embedPreviewContent = document.getElementById('embedPreviewContent');
         const removeEmbedBtn = document.getElementById('removeEmbedBtn');
 
-        // ============================================================
-        // MOBILE MENU
-        // ============================================================
         function toggleSidebar() {
             sidebar.classList.toggle('open');
             sidebarOverlay.classList.toggle('active');
@@ -1113,9 +1106,6 @@
             });
         });
 
-        // ============================================================
-        // TOAST
-        // ============================================================
         function showToast(msg, isError = false) {
             toast.textContent = msg;
             toast.style.background = isError ? '#c62828' : '#1a1a2e';
@@ -1124,9 +1114,6 @@
             toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // ============================================================
-        // UPDATE STATS
-        // ============================================================
         function updateStats() {
             document.getElementById('totalPosts').textContent = document.querySelectorAll('#postsTableBody tr:not(.empty-state)')
                 .length || 0;
@@ -1145,9 +1132,6 @@
             document.getElementById('totalViews').textContent = views;
         }
 
-        // ============================================================
-        // EMBED PREVIEW
-        // ============================================================
         function updateEmbedPreview() {
             const embedCode = movieEmbed.value.trim();
             if (embedCode) {
@@ -1171,9 +1155,6 @@
             });
         }
 
-        // ============================================================
-        // POSTS
-        // ============================================================
         async function loadPosts() {
             const tbody = document.getElementById('postsTableBody');
             try {
@@ -1219,9 +1200,6 @@
             }
         };
 
-        // ============================================================
-        // MOVIES
-        // ============================================================
         async function loadMovies() {
             const tbody = document.getElementById('moviesTableBody');
             try {
@@ -1381,9 +1359,6 @@
             });
         }
 
-        // ============================================================
-        // USERS
-        // ============================================================
         async function loadUsers() {
             const tbody = document.getElementById('usersTableBody');
             try {
@@ -1434,9 +1409,6 @@
             }
         }
 
-        // ============================================================
-        // SETTINGS
-        // ============================================================
         const settingsSaveBtn = document.getElementById('settingsSaveBtn');
         if (settingsSaveBtn) {
             settingsSaveBtn.addEventListener('click', async function() {
@@ -1458,9 +1430,6 @@
             });
         }
 
-        // ============================================================
-        // AUTH
-        // ============================================================
         auth.onAuthStateChanged(async (user) => {
             if (!user) {
                 window.location.href = 'login.html';
@@ -1497,9 +1466,6 @@
             });
         }
 
-        // ============================================================
-        // TABS
-        // ============================================================
         const tabMap = {
             'overview': '📊 Tổng quan',
             'posts': '📝 Quản lý bài viết',
@@ -1555,8 +1521,6 @@
         console.log('🖼️ Logo URL:', LOGO_URL);
         console.log('📱 Đã tối ưu hóa cho điện thoại!');
         console.log('🏠 Click logo để về trang chủ!');
-        console.log('🗑️ Đã xóa nút "Vẽ trang chủ" trong sidebar!');
-        console.log('📝 Đã sửa "Về trang" thành "Về trang chủ"!');
         console.log('👤 Click avatar để vào trang cá nhân!');
     </script>
 </body>
