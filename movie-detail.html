@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Xem phim - Doraemon Fansub</title>
 
+    <!-- ===== META BẢO MẬT ===== -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self' https:;
+        script-src 'self' 'unsafe-inline' https:;
+        style-src 'self' 'unsafe-inline' https:;
+        img-src 'self' data: https:;
+        media-src 'self' https:;
+        connect-src 'self' https:;
+        frame-src 'self' https:;
+    ">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
     <!-- Meta Tags cho chia sẻ -->
     <meta property="og:title" content="Doraemon Fansub - Xem phim" />
     <meta property="og:description" content="Xem phim Doraemon và nhiều bộ phim hay khác" />
@@ -172,6 +184,11 @@
             font-size: 14px;
         }
 
+        .movie-info .meta .year {
+            color: #999;
+            font-size: 14px;
+        }
+
         .movie-info .desc {
             color: #ccc;
             font-size: 16px;
@@ -252,7 +269,7 @@
             padding: 16px 28px;
             border-radius: 16px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            z-index: 9999;
+            z-index: 9998;
             display: none;
             font-weight: 600;
             font-size: 15px;
@@ -274,7 +291,138 @@
             }
         }
 
-        /* Responsive */
+        /* ===== LOGIN REQUIRED POPUP ===== */
+        .login-required-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 99999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        .login-required-overlay.show {
+            display: flex;
+        }
+
+        .login-required-popup {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 35px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            animation: slideUp 0.4s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .login-required-popup .popup-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .login-required-popup h3 {
+            font-size: 22px;
+            color: #1a1a2e;
+            margin-bottom: 12px;
+        }
+
+        .login-required-popup p {
+            color: #666;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .login-required-popup .popup-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .login-required-popup .popup-btn-login {
+            display: inline-block;
+            background: #1a73e8;
+            color: white;
+            padding: 12px 40px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: 0.3s;
+            width: 100%;
+            text-align: center;
+        }
+
+        .login-required-popup .popup-btn-login:hover {
+            background: #1557b0;
+            transform: scale(1.02);
+        }
+
+        .login-required-popup .popup-btn-close {
+            background: transparent;
+            color: #666;
+            border: 1px solid #ddd;
+            padding: 10px 30px;
+            border-radius: 30px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+        }
+
+        .login-required-popup .popup-btn-close:hover {
+            background: #f0f2f5;
+            border-color: #999;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* ===== LOGIN REQUIRED MESSAGE ===== */
+        .login-required-message {
+            text-align: center;
+            padding: 80px 20px;
+            color: #666;
+        }
+
+        .login-required-message .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .login-required-message h2 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .login-required-message p {
+            color: #999;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .movie-info h1 {
                 font-size: 22px;
@@ -286,13 +434,17 @@
             .video-wrapper {
                 aspect-ratio: 16/9;
             }
+            .login-required-popup {
+                padding: 30px 25px;
+            }
         }
 
         @media (max-width: 480px) {
             .movie-info h1 {
                 font-size: 18px;
             }
-            .back-btn, .share-btn {
+            .back-btn,
+            .share-btn {
                 font-size: 12px;
                 padding: 6px 14px;
             }
@@ -301,6 +453,18 @@
             }
             .logo img {
                 height: 32px;
+            }
+            .login-required-popup {
+                padding: 25px 20px;
+            }
+            .login-required-popup .popup-icon {
+                font-size: 48px;
+            }
+            .login-required-popup h3 {
+                font-size: 18px;
+            }
+            .login-required-popup p {
+                font-size: 14px;
             }
         }
     </style>
@@ -333,6 +497,19 @@
         </div>
     </main>
 
+    <!-- ===== LOGIN REQUIRED POPUP ===== -->
+    <div class="login-required-overlay" id="loginRequiredOverlay">
+        <div class="login-required-popup">
+            <div class="popup-icon">🔒</div>
+            <h3>Vui lòng đăng nhập</h3>
+            <p>Bạn cần đăng nhập để xem phim này.<br>Đăng nhập ngay để trải nghiệm đầy đủ tính năng!</p>
+            <div class="popup-actions">
+                <a href="login.html" class="popup-btn-login">🔑 Đăng nhập ngay</a>
+                <button onclick="closeLoginRequiredPopup()" class="popup-btn-close">Đóng</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== TOAST ===== -->
     <div class="toast" id="toast">✅ Đã sao chép link phim!</div>
 
@@ -357,6 +534,8 @@
         const LOGO_URL = 'https://i.ibb.co/9kJhtfp1/Doraemon-fansub.png';
         let currentMovie = null;
         let movieId = null;
+        let isLoggedIn = false;
+        let isBanned = false;
 
         // ============================================================
         // LẤY ID PHIM TỪ URL
@@ -364,6 +543,20 @@
         function getMovieIdFromURL() {
             const params = new URLSearchParams(window.location.search);
             return params.get('id');
+        }
+
+        // ============================================================
+        // KIỂM TRA TÀI KHOẢN BỊ CẤM
+        // ============================================================
+        async function checkBannedUser(email) {
+            if (!email) return false;
+            try {
+                const doc = await db.collection('banned_users').doc(email).get();
+                return doc.exists;
+            } catch (e) {
+                console.error('Lỗi kiểm tra banned:', e);
+                return false;
+            }
         }
 
         // ============================================================
@@ -465,7 +658,7 @@
                         <div class="meta">
                             <span class="genre">${movie.genre || 'Phim'}</span>
                             <span class="views">👁️ ${(movie.views || 0) + 1} lượt xem</span>
-                            <span class="views">📅 ${movie.year || 'N/A'}</span>
+                            <span class="year">📅 ${movie.year || 'N/A'}</span>
                         </div>
                         <p class="desc">${movie.desc || ''}</p>
                     </div>
@@ -474,9 +667,40 @@
         }
 
         // ============================================================
+        // HIỂN THỊ POP-UP YÊU CẦU ĐĂNG NHẬP
+        // ============================================================
+        function showLoginRequired() {
+            const overlay = document.getElementById('loginRequiredOverlay');
+            if (overlay) {
+                overlay.classList.add('show');
+                overlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // ============================================================
+        // ĐÓNG POP-UP YÊU CẦU ĐĂNG NHẬP
+        // ============================================================
+        function closeLoginRequiredPopup() {
+            const overlay = document.getElementById('loginRequiredOverlay');
+            if (overlay) {
+                overlay.classList.remove('show');
+                overlay.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+            // Quay lại trang chủ
+            window.location.href = 'index.html';
+        }
+
+        // ============================================================
         // CHIA SẺ PHIM
         // ============================================================
         function shareMovie() {
+            if (!isLoggedIn || isBanned) {
+                showLoginRequired();
+                return;
+            }
+
             const url = window.location.href;
             const title = currentMovie?.title || 'Xem phim trên Doraemon Fansub';
 
@@ -492,7 +716,6 @@
                         showToast('✅ Đã sao chép link phim!');
                     })
                     .catch(() => {
-                        // Fallback
                         prompt('📤 Sao chép link này để chia sẻ:', url);
                     });
             }
@@ -511,11 +734,70 @@
         }
 
         // ============================================================
+        // AUTH STATE - KIỂM TRA ĐĂNG NHẬP
+        // ============================================================
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // Kiểm tra tài khoản bị cấm
+                isBanned = await checkBannedUser(user.email);
+                if (isBanned) {
+                    // Nếu bị cấm, hiển thị thông báo và yêu cầu đăng nhập lại
+                    showLoginRequired();
+                    document.getElementById('movieContent').innerHTML = `
+                        <div class="login-required-message">
+                            <span class="icon">🚫</span>
+                            <h2>Tài khoản đã bị khóa</h2>
+                            <p>Tài khoản của bạn đã bị khóa. Vui lòng liên hệ admin để được hỗ trợ.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                isLoggedIn = true;
+                await loadMovieDetail();
+            } else {
+                isLoggedIn = false;
+                isBanned = false;
+                // Hiển thị pop-up yêu cầu đăng nhập
+                showLoginRequired();
+                // Ẩn nội dung phim
+                document.getElementById('movieContent').innerHTML = `
+                    <div class="login-required-message">
+                        <span class="icon">🔒</span>
+                        <h2>Vui lòng đăng nhập</h2>
+                        <p>Bạn cần đăng nhập để xem phim này.</p>
+                    </div>
+                `;
+            }
+        });
+
+        // ============================================================
+        // CLICK OUTSIDE ĐỂ ĐÓNG POP-UP
+        // ============================================================
+        document.addEventListener('click', function(e) {
+            const overlay = document.getElementById('loginRequiredOverlay');
+            if (overlay && overlay.classList.contains('show')) {
+                if (e.target === overlay) {
+                    closeLoginRequiredPopup();
+                }
+            }
+        });
+
+        // ============================================================
+        // ESC ĐỂ ĐÓNG POP-UP
+        // ============================================================
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLoginRequiredPopup();
+            }
+        });
+
+        // ============================================================
         // KEYBOARD SHORTCUTS
         // ============================================================
         document.addEventListener('keydown', (e) => {
-            // ESC để quay lại
-            if (e.key === 'Escape') {
+            // ESC để quay lại (chỉ khi đã đăng nhập)
+            if (e.key === 'Escape' && isLoggedIn && !isBanned) {
                 window.location.href = 'index.html';
             }
             // Ctrl + S để chia sẻ
@@ -528,11 +810,11 @@
         // ============================================================
         // INIT
         // ============================================================
-        loadMovieDetail();
-
         console.log('🎬 Trang chi tiết phim đã sẵn sàng!');
         console.log('📤 Nhấn Ctrl+S để chia sẻ phim');
         console.log('⌨️ Nhấn ESC để quay lại');
+        console.log('🔒 Kiểm tra đăng nhập trước khi xem phim');
+        console.log('🚫 Kiểm tra tài khoản bị cấm');
     </script>
 </body>
 </html>
