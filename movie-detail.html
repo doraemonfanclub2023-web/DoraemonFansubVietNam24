@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xem phim - Doraemon Fansub</title>
+
+    <!-- Firebase compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: white;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: 800;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo img {
+            height: 40px;
+            width: auto;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .share-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .share-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Movie Player */
+        .movie-player {
+            padding: 30px 0;
+        }
+
+        .video-wrapper {
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 16/9;
+            max-height: 80vh;
+        }
+
+        .video-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: #000;
+        }
+
+        .movie-info {
+            padding: 24px 0;
+        }
+
+        .movie-info h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .movie-info .meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .movie-info .meta .genre {
+            background: #1a73e8;
+            color: white;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .movie-info .meta .views {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .movie-info .desc {
+            color: #ccc;
+            font-size: 16px;
+            line-height: 1.7;
+            max-width: 700px;
+        }
+
+        .loading-state {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60vh;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #1a1a2e;
+            border-top: 4px solid #1a73e8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .error-state .icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .error-state h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .error-state p {
+            color: #999;
+            margin-bottom: 20px;
+        }
+
+        .error-state .btn-home {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .error-state .btn-home:hover {
+            background: #1557b0;
+            transform: scale(1.05);
+        }
+
+        /* Toast thông báo copy link */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a2e;
+            color: white;
+            padding: 16px 28px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: none;
+            font-weight: 600;
+            font-size: 15px;
+            animation: slideUp 0.4s ease;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 30px);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .movie-info h1 {
+                font-size: 22px;
+            }
+            .header-content {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .video-wrapper {
+                aspect-ratio: 16/9;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .movie-info h1 {
+                font-size: 18px;
+            }
+            .back-btn, .share-btn {
+                font-size: 12px;
+                padding: 6px 14px;
+            }
+            .logo {
+                font-size: 18px;
+            }
+            .logo img {
+                height: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <img src="https://i.ibb.co/9kJhtfp1/Doraemon-fansub.png" alt="Doraemon Fansub">
+                    Doraemon
+                </a>
+                <div style="display: flex; gap: 10px;">
+                    <a href="index.html" class="back-btn">← Quay lại</a>
+                    <button class="share-btn" onclick="shareMovie()">📤 Chia sẻ</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="container">
+        <div id="movieContent">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p style="color: #999;">Đang tải phim...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast">✅ Đã sao chép link phim!</div>
+
+    <script>
+        // ============================================================
+        // FIREBASE CONFIG
+        // ============================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBt3G9n5JYu3EsvqJR9IoW2vRAc_Es3-ws",
+            authDomain: "doraemon-fansub-vietnam.firebaseapp.com",
+            projectId: "doraemon-fansub-vietnam",
+            storageBucket: "doraemon-fansub-vietnam.firebasestorage.app",
+            messagingSenderId: "380840935390",
+            appId: "1:380840935390:web:60fab4722a9fba5053a74f",
+            measurementId: "G-0S2Z4XRK0B"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const LOGO_URL = 'https://i.ibb.co/9kJhtfp1/Doraemon-fansub.png';
+        let currentMovie = null;
+        let movieId = null;
+
+        // ============================================================
+        // LẤY ID PHIM TỪ URL
+        // ============================================================
+        function getMovieIdFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        // ============================================================
+        // TẢI THÔNG TIN PHIM
+        // ============================================================
+        async function loadMovieDetail() {
+            movieId = getMovieIdFromURL();
+            const container = document.getElementById('movieContent');
+
+            if (!movieId) {
+                container.innerHTML = `
+                    <div class="error-state">
+                        <div class="icon">❌</div>
+                        <h2>Không tìm thấy phim</h2>
+                        <p>ID phim không hợp lệ hoặc không tồn tại.</p>
+                        <a href="index.html" class="btn-home">🏠 Về trang chủ</a>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const doc = await db.collection('movies').doc(movieId).get();
+
+                if (!doc.exists) {
+                    container.innerHTML = `
+                        <div class="error-state">
+                            <div class="icon">🎬</div>
+                            <h2>Phim không tồn tại</h2>
+                            <p>Phim bạn tìm kiếm đã bị xóa hoặc không có.</p>
+                            <a href="index.html" class="btn-home">🏠 Về trang chủ</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                currentMovie = doc.data();
+
+                // Cập nhật lượt xem
+                try {
+                    await db.collection('movies').doc(movieId).update({
+                        views: (currentMovie.views || 0) + 1
+                    });
+                } catch (e) {
+                    console.warn('Không cập nhật được lượt xem:', e);
+                }
+
+                renderMovieDetail(currentMovie);
+
+            } catch (e) {
+                console.error('Lỗi tải phim:', e);
+                container.innerHTML = `
+                    <div class="error-state">
+                        <div class="icon">❌</div>
+                        <h2>Lỗi tải phim</h2>
+                        <p>${e.message || 'Không thể tải phim. Vui lòng thử lại sau.'}</p>
+                        <a href="index.html" class="btn-home">🏠 Về trang chủ</a>
+                    </div>
+                `;
+            }
+        }
+
+        // ============================================================
+        // HIỂN THỊ CHI TIẾT PHIM
+        // ============================================================
+        function renderMovieDetail(movie) {
+            const container = document.getElementById('movieContent');
+
+            let videoContent = '';
+            if (movie.embed) {
+                videoContent = movie.embed;
+            } else if (movie.video) {
+                videoContent = `
+                    <video controls autoplay>
+                        <source src="${movie.video}">
+                        Trình duyệt không hỗ trợ video
+                    </video>
+                `;
+            } else {
+                videoContent = `<p style="color:#999;text-align:center;padding:40px;">Không có video</p>`;
+            }
+
+            // Cập nhật title trang
+            document.title = `${movie.title || 'Xem phim'} - Doraemon Fansub`;
+
+            container.innerHTML = `
+                <div class="movie-player">
+                    <div class="video-wrapper">
+                        ${videoContent}
+                    </div>
+                    <div class="movie-info">
+                        <h1>${movie.title || 'Không có tiêu đề'}</h1>
+                        <div class="meta">
+                            <span class="genre">${movie.genre || 'Phim'}</span>
+                            <span class="views">👁️ ${(movie.views || 0) + 1} lượt xem</span>
+                            <span class="views">📅 ${movie.year || 'N/A'}</span>
+                        </div>
+                        <p class="desc">${movie.desc || ''}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============================================================
+        // CHIA SẺ PHIM
+        // ============================================================
+        function shareMovie() {
+            const url = window.location.href;
+            const title = currentMovie?.title || 'Xem phim trên Doraemon Fansub';
+
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    text: `🎬 ${title}\nXem ngay tại:`,
+                    url: url
+                }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(url)
+                    .then(() => {
+                        showToast('✅ Đã sao chép link phim!');
+                    })
+                    .catch(() => {
+                        // Fallback
+                        prompt('📤 Sao chép link này để chia sẻ:', url);
+                    });
+            }
+        }
+
+        // ============================================================
+        // TOAST NOTIFICATION
+        // ============================================================
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // ============================================================
+        // KEYBOARD SHORTCUTS
+        // ============================================================
+        document.addEventListener('keydown', (e) => {
+            // ESC để quay lại
+            if (e.key === 'Escape') {
+                window.location.href = 'index.html';
+            }
+            // Ctrl + S để chia sẻ
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                shareMovie();
+            }
+        });
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        loadMovieDetail();
+
+        console.log('🎬 Trang chi tiết phim đã sẵn sàng!');
+        console.log('📤 Nhấn Ctrl+S để chia sẻ phim');
+        console.log('⌨️ Nhấn ESC để quay lại');
+    </script>
+</body>
+</html>
