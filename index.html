@@ -2471,14 +2471,40 @@
                     .get();
 
                 if (snapshot.empty) {
-                    movieList.innerHTML = `
-                            <div class="empty-state">
-                                <div class="icon">🎬</div>
-                                <h3>Chưa có phim nào</h3>
-                                <p>Admin sẽ sớm cập nhật phim mới!</p>
-                            </div>
-                        `;
-                    updateCategoryCounts([]);
+                    // HIỂN THỊ PHIM MẪU KHI CHƯA CÓ DỮ LIỆU
+                    const sampleMovies = [{
+                        id: 'sample1',
+                        title: 'Doraemon tập 830: Thủy cung sứa của Nobita',
+                        desc: 'Nobita và các bạn cùng Doraemon phiêu lưu kỳ thú.',
+                        genre: 'Phiêu lưu, Hài hước',
+                        category: 'movie',
+                        poster: 'https://picsum.photos/seed/doraemon1/400/250',
+                        views: 0,
+                        video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+                    }, {
+                        id: 'sample2',
+                        title: 'Doraemon tập 802: Vực dậy, Robot không lộ thủ công',
+                        desc: 'Doraemon và Nobita phiêu lưu trong thế giới robot.',
+                        genre: 'Khoa học viễn tưởng',
+                        category: 'movie',
+                        poster: 'https://picsum.photos/seed/doraemon2/400/250',
+                        views: 0,
+                        video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4'
+                    }, {
+                        id: 'sample3',
+                        title: 'Doraemon: Nobita và đảo giấu vàng',
+                        desc: 'Nobita và các bạn cùng Doraemon lên đường tìm kiếm hòn đảo bí ẩn chứa kho báu khổng lồ.',
+                        genre: 'Phiêu lưu',
+                        category: 'movie',
+                        poster: 'https://picsum.photos/seed/doraemon3/400/250',
+                        views: 0,
+                        video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
+                    }];
+
+                    allMovies = sampleMovies;
+                    updateCategoryCounts(allMovies);
+                    renderMoviesByCategory('all');
+                    console.log('✅ Đã load phim mẫu (chưa có dữ liệu Firestore)');
                     return;
                 }
 
@@ -2486,9 +2512,7 @@
                 snapshot.forEach(doc => {
                     const m = doc.data();
                     m.id = doc.id;
-                    if (!m.category) {
-                        m.category = 'movie';
-                    }
+                    if (!m.category) m.category = 'movie';
                     allMovies.push(m);
                 });
 
@@ -2497,15 +2521,20 @@
 
             } catch (e) {
                 console.error('Lỗi tải phim:', e);
-                movieList.innerHTML = `
-                        <div class="empty-state">
-                            <div class="icon">❌</div>
-                            <h3>Lỗi tải phim</h3>
-                            <p>${e.message}</p>
-                            <br>
-                            <button onclick="loadMovies()" style="padding:8px 20px;background:#1a73e8;color:white;border:none;border-radius:20px;cursor:pointer;">🔄 Thử lại</button>
-                        </div>
-                    `;
+                // Hiển thị phim mẫu khi lỗi kết nối
+                const sampleMovies = [{
+                    id: 'sample1',
+                    title: 'Doraemon tập 830: Thủy cung sứa của Nobita',
+                    desc: 'Nobita và các bạn cùng Doraemon phiêu lưu kỳ thú.',
+                    genre: 'Phiêu lưu',
+                    category: 'movie',
+                    poster: 'https://picsum.photos/seed/doraemon1/400/250',
+                    views: 0,
+                    video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+                }];
+                allMovies = sampleMovies;
+                updateCategoryCounts(allMovies);
+                renderMoviesByCategory('all');
             }
         }
 
@@ -2597,6 +2626,7 @@
         console.log('✅ Tất cả link đã chuyển sang HTTPS');
         console.log('✅ Đã thêm rel="noopener noreferrer" cho link ngoài');
         console.log('✅ Đã thêm loading="lazy" cho ảnh');
+        console.log('✅ Đã thêm phim mẫu khi chưa có dữ liệu Firestore');
     </script>
 </body>
 </html>
